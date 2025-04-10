@@ -457,6 +457,7 @@ pisa_2022 <- pisa_2022 %>%
   mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
 
 survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
+paises <- unique(pisa_2022$CNT)
 
 #muestra de puntajes por países
 math_paises <- data.frame(
