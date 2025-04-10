@@ -115,13 +115,13 @@ pisa_2022 <- pisa_2022 %>%
     vehiculos = ST251Q01JA,
     banos = ST251Q03JA,
     
-    # �ndice socioecon�mico
+    # Índice socioeconómico
     falta_comida_dinero = ST258Q01JA,
     estatus_economico_actual = ST259Q01JA,
     estatus_economico_futuro = ST259Q02JA,
     pct_desfavorecidos = SC211Q03JA,
     
-    # Educaci�n padres
+    # Educación padres
     educacion_madre = ST005Q01JA,
     calificaciones_madre_1 = ST006Q01JA,
     calificaciones_madre_2 = ST006Q02JA,
@@ -135,10 +135,10 @@ pisa_2022 <- pisa_2022 %>%
     calificaciones_padre_4 = ST008Q04JA,
     calificaciones_padre_5 = ST008Q05JA,
     
-    # G�nero
+    # Género
     genero = ST004D01T,
     
-    # Autopercepci�n y actitudes
+    # Autopercepción y actitudes
     matematica_favorita = ST268Q01JA,
     matematica_facil = ST268Q04JA,
     buen_desempeno_mate = ST268Q07JA,
@@ -197,7 +197,7 @@ pisa_2022 <- pisa_2022 %>%
     seguridad_clase = ST265Q03JA,
     seguridad_escuela = ST265Q04JA,
     
-    # Motivaci�n y h�bitos de estudio
+    # Motivación y hábitos de estudio
     persistencia_tarea = ST307Q01JA,
     esfuerzo_desafio = ST307Q02JA,
     mas_persistente = ST307Q05JA,
@@ -212,7 +212,7 @@ pisa_2022 <- pisa_2022 %>%
     estudio_tarde = ST295Q02JA,
     dispositivos_clase = ST322Q04JA,
     
-    # Ansiedad matem�ticas
+    # Ansiedad matemáticas
     ansiedad_mate = ANXMAT,
     ansiedad_mate_1 = ST292Q01JA,
     ansiedad_mate_2 = ST292Q02JA,
@@ -264,7 +264,7 @@ pisa_2022 <- pisa_2022 %>%
     expectativa_carrera_mate_4 = PA197Q05WA,
     educacion_esperada = EXPECEDU,
     
-    # Desempe�o matem�ticas
+    # Desempeño matemáticas
     pv_math_1 = PV1MATH,
     pv_math_2 = PV2MATH,
     pv_math_3 = PV3MATH,
@@ -278,7 +278,7 @@ pisa_2022 <- pisa_2022 %>%
     autoeficacia_mate = MATHEFF,
     persistencia_mate = MATHPERS,
     
-    # Ocupaci�n padres
+    # Ocupación padres
     ocupacion_1 = OCOD1,
     ocupacion_2 = OCOD2,
     ocupacion_3 = OCOD3,
@@ -297,7 +297,7 @@ pisa_2022 <- pisa_2022 %>%
     cursos_extension_mate = MATHEXC,
     agrupacion_habilidad_mate = ABGMATH,
     
-    # Enfoque ense�anza matem�ticas
+    # Enfoque enseñanza matemáticas
     enfoque_mundo_real = TC230Q01JA,
     enfoque_estructura_logica = TC230Q02JA,
     importancia_explicacion = TC230Q03JA,
@@ -307,7 +307,7 @@ pisa_2022 <- pisa_2022 %>%
     uso_tecnologia = TC230Q10JA,
     creatividad_matematica = TC230Q11JA,
     
-    # Pr�cticas docentes - pensamiento matem�tico
+    # Prácticas docentes - pensamiento matemático
     fomento_pensamiento_mate_1 = TC227Q01JA,
     fomento_pensamiento_mate_2 = TC227Q02JA,
     fomento_pensamiento_mate_3 = TC227Q03JA,
@@ -318,7 +318,7 @@ pisa_2022 <- pisa_2022 %>%
     fomento_pensamiento_mate_8 = TC227Q08JA,
     fomento_pensamiento_mate_9 = TC227Q09JA,
     
-    # Pr�cticas docentes - razonamiento
+    # Prácticas docentes - razonamiento
     explicacion_razonamiento_1 = TC228Q01JA,
     explicacion_razonamiento_2 = TC228Q02JA,
     explicacion_razonamiento_3 = TC228Q03JA,
@@ -329,7 +329,7 @@ pisa_2022 <- pisa_2022 %>%
     explicacion_razonamiento_8 = TC228Q08JA,
     explicacion_razonamiento_9 = TC228Q09JA,
     
-    # Uso de tecnolog�a
+    # Uso de tecnología
     uso_software_1 = TC169Q01HA,
     uso_software_2 = TC169Q02HA,
     uso_software_3 = TC169Q03HA,
@@ -423,7 +423,7 @@ pisa_2022 <- pisa_2022 %>%
   )) #between(ocupacion_1, 2211, 2222)| ocupacion_1 %in% c(22, 24, 221, 222, 225, 226, 241:243, 2250)
      #between(ocupacion_1, 2261, 2269)| between(ocupacion_1, 2411, 2434)| between(ocupacion_1, 2631, 2634)
 #22: medicina
-#24: Profesionales de negocios y administraci�n
+#24: Profesionales de negocios y administración
 #2631: Ciencias sociales
 
 sum(pisa_2022$stem_madre, na.rm = TRUE)
@@ -449,7 +449,23 @@ pisa_2022 %>%
          ans =  n(),
          porc_ans= (1-(ms/ans))*100)
 
+#Puntaje de Matemática
+library(dplyr)
+library(survey)
 
+pisa_2022 <- pisa_2022 %>%
+  mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
+
+survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
+
+#muestra de puntajes por países
+math_paises <- data.frame(
+  CNT = paises,
+  promedio_mate = sapply(paises, function(pais) {
+    svymean(~MATH_SCORE, subset(survey_design, CNT == pais))[[1]]  # Extrae el valor numérico
+  })
+)
+print(math_score)
 
 
 
