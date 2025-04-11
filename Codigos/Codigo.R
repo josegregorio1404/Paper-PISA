@@ -468,6 +468,14 @@ math_paises <- data.frame(
 )
 print(math_score)
 
+#Idea clara del trabajo futuro
+trabajo_futuro <- pisa_2022 %>%
+  group_by(CNT,SISCO) %>%
+  summarise(count=n(), .grouos = 'drop')
+  
+trabajo_futuro <- trabajo_futuro %>%
+  pivot_wider(names_from = SISCO, values_from = count, values_fill = 0)
+print(trabajo_futuro)
 
 
 
