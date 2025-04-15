@@ -1,4 +1,3 @@
-
 ############################# Codigo ###########################################
 
 #rm(list = ls())
@@ -8,7 +7,8 @@ library(haven)
 library(dplyr)
 
 # Bases de datos separadas ----
-setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
+setwd("C:/Users/externo.babarca/Desktop/PISA/")
+#setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
 #setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/")
 
 
@@ -51,7 +51,8 @@ students <- CY08MSP_STU_QQQ %>%
          ST324Q04JA, ST324Q05JA, ST324Q07JA, ST324Q12JA, ST324Q13JA, ST324Q14JA, 
          PA197Q02WA, EXPECEDU, PA197Q02WA, PA197Q03WA, PA197Q04WA, PA197Q05WA,
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
-         PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO) %>%
+         PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO,
+         HOMEPOS, ST019AQ01T, ST019BQ01T, ST019CQ01T) %>%
   filter(CNT %in% paises)
 
 
@@ -250,6 +251,9 @@ pisa_2022 <- pisa_2022 %>%
     interes_aprendizaje = ST300Q08JA,
     plan_educacion_futura = ST300Q09JA,
     preguntas_actividades = ST300Q10JA,
+    cond_migra = ST019AQ01T,
+    cond_migra_mama = ST019BQ01T,
+    cond_migra_papa = ST019CQ01T,
     
     # Percepciones futuras
     preocupacion_preparacion = ST324Q02JA,
@@ -300,83 +304,83 @@ pisa_2022 <- pisa_2022 %>%
     cursos_extension_mate = MATHEXC,
     agrupacion_habilidad_mate = ABGMATH
   )
-    
-  #   # Enfoque enseñanza matemáticas
-  #   enfoque_mundo_real = TC230Q01JA,
-  #   enfoque_estructura_logica = TC230Q02JA,
-  #   importancia_explicacion = TC230Q03JA,
-  #   problemas_dificiles = TC230Q07JA,
-  #   pocos_problemas_complejos = TC230Q08JA,
-  #   objetivo_logica = TC230Q09JA,
-  #   uso_tecnologia = TC230Q10JA,
-  #   creatividad_matematica = TC230Q11JA,
-  #   
-  #   # Prácticas docentes - pensamiento matemático
-  #   fomento_pensamiento_mate_1 = TC227Q01JA,
-  #   fomento_pensamiento_mate_2 = TC227Q02JA,
-  #   fomento_pensamiento_mate_3 = TC227Q03JA,
-  #   fomento_pensamiento_mate_4 = TC227Q04JA,
-  #   fomento_pensamiento_mate_5 = TC227Q05JA,
-  #   fomento_pensamiento_mate_6 = TC227Q06JA,
-  #   fomento_pensamiento_mate_7 = TC227Q07JA,
-  #   fomento_pensamiento_mate_8 = TC227Q08JA,
-  #   fomento_pensamiento_mate_9 = TC227Q09JA,
-  #   
-  #   # Prácticas docentes - razonamiento
-  #   explicacion_razonamiento_1 = TC228Q01JA,
-  #   explicacion_razonamiento_2 = TC228Q02JA,
-  #   explicacion_razonamiento_3 = TC228Q03JA,
-  #   explicacion_razonamiento_4 = TC228Q04JA,
-  #   explicacion_razonamiento_5 = TC228Q05JA,
-  #   explicacion_razonamiento_6 = TC228Q06JA,
-  #   explicacion_razonamiento_7 = TC228Q07JA,
-  #   explicacion_razonamiento_8 = TC228Q08JA,
-  #   explicacion_razonamiento_9 = TC228Q09JA,
-  #   
-  #   # Uso de tecnología
-  #   uso_software_1 = TC169Q01HA,
-  #   uso_software_2 = TC169Q02HA,
-  #   uso_software_3 = TC169Q03HA,
-  #   uso_software_4 = TC169Q04HA,
-  #   uso_software_5 = TC169Q05HA,
-  #   uso_software_6 = TC169Q06HA,
-  #   uso_software_7 = TC169Q07HA,
-  #   uso_software_8 = TC169Q08HA,
-  #   uso_software_9 = TC169Q09HA,
-  #   uso_software_10 = TC169Q10HA,
-  #   uso_software_11 = TC169Q11HA,
-  #   uso_software_12 = TC169Q13HA,
-  #   uso_software_13 = TC169Q14HA,
-  #   uso_software_14 = TC169Q15JA,
-  #   
-  #   # Recursos digitales
-  #   recursos_digitales_1 = TC220Q02JA,
-  #   recursos_digitales_2 = TC220Q04JA,
-  #   recursos_digitales_3 = TC220Q06JA,
-  #   recursos_digitales_4 = TC220Q07JA,
-  #   recursos_digitales_5 = TC220Q08JA,
-  #   recursos_digitales_6 = TC220Q09JA,
-  #   recursos_digitales_7 = TC220Q10JA,
-  #   recursos_digitales_8 = TC220Q11JA,
-  #   recursos_digitales_9 = TC220Q12JA,
-  #   
-  #   # Desarrollo profesional
-  #   desarrollo_profesional_1 = TC185Q01HA,
-  #   desarrollo_profesional_2 = TC185Q02HA,
-  #   desarrollo_profesional_3 = TC185Q03HA,
-  #   desarrollo_profesional_4 = TC185Q04HA,
-  #   desarrollo_profesional_5 = TC185Q05HA,
-  #   desarrollo_profesional_6 = TC185Q06HA,
-  #   desarrollo_profesional_7 = TC185Q08HA,
-  #   desarrollo_profesional_8 = TC185Q09HA,
-  #   desarrollo_profesional_9 = TC185Q10HA,
-  #   desarrollo_profesional_10 = TC185Q14HA,
-  #   desarrollo_profesional_11 = TC185Q15HA,
-  #   desarrollo_profesional_12 = TC185Q16HA,
-  #   desarrollo_profesional_13 = TC185Q18HA
-  # )
 
-# Crear la columna para expectativas de ejercicio profesiona en carreras stem ----
+#   # Enfoque enseñanza matemáticas
+#   enfoque_mundo_real = TC230Q01JA,
+#   enfoque_estructura_logica = TC230Q02JA,
+#   importancia_explicacion = TC230Q03JA,
+#   problemas_dificiles = TC230Q07JA,
+#   pocos_problemas_complejos = TC230Q08JA,
+#   objetivo_logica = TC230Q09JA,
+#   uso_tecnologia = TC230Q10JA,
+#   creatividad_matematica = TC230Q11JA,
+#   
+#   # Prácticas docentes - pensamiento matemático
+#   fomento_pensamiento_mate_1 = TC227Q01JA,
+#   fomento_pensamiento_mate_2 = TC227Q02JA,
+#   fomento_pensamiento_mate_3 = TC227Q03JA,
+#   fomento_pensamiento_mate_4 = TC227Q04JA,
+#   fomento_pensamiento_mate_5 = TC227Q05JA,
+#   fomento_pensamiento_mate_6 = TC227Q06JA,
+#   fomento_pensamiento_mate_7 = TC227Q07JA,
+#   fomento_pensamiento_mate_8 = TC227Q08JA,
+#   fomento_pensamiento_mate_9 = TC227Q09JA,
+#   
+#   # Prácticas docentes - razonamiento
+#   explicacion_razonamiento_1 = TC228Q01JA,
+#   explicacion_razonamiento_2 = TC228Q02JA,
+#   explicacion_razonamiento_3 = TC228Q03JA,
+#   explicacion_razonamiento_4 = TC228Q04JA,
+#   explicacion_razonamiento_5 = TC228Q05JA,
+#   explicacion_razonamiento_6 = TC228Q06JA,
+#   explicacion_razonamiento_7 = TC228Q07JA,
+#   explicacion_razonamiento_8 = TC228Q08JA,
+#   explicacion_razonamiento_9 = TC228Q09JA,
+#   
+#   # Uso de tecnología
+#   uso_software_1 = TC169Q01HA,
+#   uso_software_2 = TC169Q02HA,
+#   uso_software_3 = TC169Q03HA,
+#   uso_software_4 = TC169Q04HA,
+#   uso_software_5 = TC169Q05HA,
+#   uso_software_6 = TC169Q06HA,
+#   uso_software_7 = TC169Q07HA,
+#   uso_software_8 = TC169Q08HA,
+#   uso_software_9 = TC169Q09HA,
+#   uso_software_10 = TC169Q10HA,
+#   uso_software_11 = TC169Q11HA,
+#   uso_software_12 = TC169Q13HA,
+#   uso_software_13 = TC169Q14HA,
+#   uso_software_14 = TC169Q15JA,
+#   
+#   # Recursos digitales
+#   recursos_digitales_1 = TC220Q02JA,
+#   recursos_digitales_2 = TC220Q04JA,
+#   recursos_digitales_3 = TC220Q06JA,
+#   recursos_digitales_4 = TC220Q07JA,
+#   recursos_digitales_5 = TC220Q08JA,
+#   recursos_digitales_6 = TC220Q09JA,
+#   recursos_digitales_7 = TC220Q10JA,
+#   recursos_digitales_8 = TC220Q11JA,
+#   recursos_digitales_9 = TC220Q12JA,
+#   
+#   # Desarrollo profesional
+#   desarrollo_profesional_1 = TC185Q01HA,
+#   desarrollo_profesional_2 = TC185Q02HA,
+#   desarrollo_profesional_3 = TC185Q03HA,
+#   desarrollo_profesional_4 = TC185Q04HA,
+#   desarrollo_profesional_5 = TC185Q05HA,
+#   desarrollo_profesional_6 = TC185Q06HA,
+#   desarrollo_profesional_7 = TC185Q08HA,
+#   desarrollo_profesional_8 = TC185Q09HA,
+#   desarrollo_profesional_9 = TC185Q10HA,
+#   desarrollo_profesional_10 = TC185Q14HA,
+#   desarrollo_profesional_11 = TC185Q15HA,
+#   desarrollo_profesional_12 = TC185Q16HA,
+#   desarrollo_profesional_13 = TC185Q18HA
+# )
+
+# Crear la columna para expectativas de ejercicio profesional en carreras stem ----
 
 #Estudiante (9997 -> N/A, 9998 -> Inválido, 9999 -> Missing)
 pisa_2022$ocupacion_3 <- as.numeric(pisa_2022$ocupacion_3)
@@ -497,12 +501,19 @@ print(prueba)
 table(pisa_2022$stem,useNA = "ifany")
 
 # Variables ----
-#Nivel educativo de los padres.
-#Índice socio-económico.
-#Financiamiento de la escuela.
-#Acceso a recursos en el hogar.
-#Género.
-#Condición migratoria.
+#Aspiración a una carrera stem: stem
+#Nivel educativo de los padres: educacion_madre, educacion_padre
+#Índice socio-económico: HOMEPOS
+#Financiamiento de la escuela: tipo_escuela
+#Acceso a recursos en el hogar:falta_comida_dinero, habitacion_propia, internet_hogar, banos, 
+#Género: genero
+#Condición migratoria: cond_migra, cond_migra_mama, cond_migra_papa
+#matematica_facil, matematica_favorita, 
+
+
+
+
+
 
 
 
