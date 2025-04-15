@@ -484,7 +484,13 @@ trabajo_futuro <- trabajo_futuro %>%
   pivot_wider(names_from = SISCO, values_from = count, values_fill = 0)
 print(trabajo_futuro)
 
-
+# Variables ----
+#Nivel educativo de los padres.
+#Índice socio-económico.
+#Financiamiento de la escuela.
+#Acceso a recursos en el hogar.
+#Género.
+#Condición migratoria.
 
 
 
