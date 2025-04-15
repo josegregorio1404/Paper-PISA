@@ -52,13 +52,13 @@ students <- CY08MSP_STU_QQQ %>%
          PA197Q02WA, EXPECEDU, PA197Q02WA, PA197Q03WA, PA197Q04WA, PA197Q05WA,
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
          PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO) %>%
-  filter(CNT %in% paises1)
+  filter(CNT %in% paises)
 
 
 school <- CY08MSP_SCH_QQQ %>%
   select(CNT, CNTSCHID, SC013Q01TA, SC016Q01TA, SC004Q02TA, SC004Q03TA, SC004Q07NA, SC211Q03JA,STRATIO, 
          SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH) %>%
-  filter(CNT %in% paises1)
+  filter(CNT %in% paises)
 
 teacher <- CY08MSP_TCH_QQQ %>%
   select(CNT, CNTSCHID, TC230Q01JA, TC230Q02JA, TC230Q03JA, TC230Q07JA,
@@ -74,7 +74,7 @@ teacher <- CY08MSP_TCH_QQQ %>%
          TC185Q01HA, TC185Q02HA, TC185Q03HA, TC185Q04HA, TC185Q05HA, 
          TC185Q06HA, TC185Q08HA, TC185Q09HA, TC185Q10HA, TC185Q14HA,
          TC185Q15HA, TC185Q16HA, TC185Q18HA) %>%
-  filter(CNT %in% paises1) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
+  filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
 
 # Juntar las tablas por ID de escuela y ID de pais (Revisar STATA) ----
 write_dta(students, path = "students.dta")
@@ -378,7 +378,7 @@ pisa_2022 <- pisa_2022 %>%
 
 # Crear la columna para expectativas de ejercicio profesiona en carreras stem ----
 
-#Estudiante
+#Estudiante (9997 -> N/A, 9998 -> Inválido, 9999 -> Missing)
 pisa_2022$ocupacion_3 <- as.numeric(pisa_2022$ocupacion_3)
 
 pisa_2022 <- pisa_2022 %>%
@@ -483,6 +483,18 @@ trabajo_futuro <- pisa_2022 %>%
 trabajo_futuro <- trabajo_futuro %>%
   pivot_wider(names_from = SISCO, values_from = count, values_fill = 0)
 print(trabajo_futuro)
+
+#Expectativa STEM
+library(tidyr)
+prueba <- pisa_2022 %>%
+  group_by(pais,stem) %>%
+  summarise(count=n(), .grouos = 'drop')
+
+prueba <- prueba %>%
+  pivot_wider(names_from = stem, values_from = count, values_fill = 0)
+print(prueba)
+
+table(pisa_2022$stem,useNA = "ifany")
 
 # Variables ----
 #Nivel educativo de los padres.
