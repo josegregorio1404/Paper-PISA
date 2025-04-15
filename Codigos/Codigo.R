@@ -1,12 +1,16 @@
 
 ############################# Codigo ###########################################
 
+#rm(list = ls())
 # Librerias ----
 
 library(haven)
 library(dplyr)
 
 # Bases de datos separadas ----
+setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
+#setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/")
+
 
 CY08MSP_STU_QQQ <- read_sas("CY08MSP_STU_QQQ.SAS7BDAT", NULL)
 
@@ -16,7 +20,6 @@ CY08MSP_TCH_QQQ <- read_sas("CY08MSP_TCH_QQQ.SAS7BDAT", NULL)
 
 
 # Filtra durante la lectura (menos eficiente que Python para archivos muy grandes) ----
-
 
 paises <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", "PRY", "SLV", "URY")
 paises1 <- c("BRA", "COL", "CRI", "PAN", "PER")
@@ -48,13 +51,13 @@ students <- CY08MSP_STU_QQQ %>%
          ST324Q04JA, ST324Q05JA, ST324Q07JA, ST324Q12JA, ST324Q13JA, ST324Q14JA, 
          PA197Q02WA, EXPECEDU, PA197Q02WA, PA197Q03WA, PA197Q04WA, PA197Q05WA,
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
-         PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1) %>%
+         PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO) %>%
   filter(CNT %in% paises1)
-  
+
 
 school <- CY08MSP_SCH_QQQ %>%
   select(CNT, CNTSCHID, SC013Q01TA, SC016Q01TA, SC004Q02TA, SC004Q03TA, SC004Q07NA, SC211Q03JA,STRATIO, 
-    SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH) %>%
+         SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH) %>%
   filter(CNT %in% paises1)
 
 teacher <- CY08MSP_TCH_QQQ %>%
@@ -73,23 +76,23 @@ teacher <- CY08MSP_TCH_QQQ %>%
          TC185Q15HA, TC185Q16HA, TC185Q18HA) %>%
   filter(CNT %in% paises1) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
 
-
 # Juntar las tablas por ID de escuela y ID de pais (Revisar STATA) ----
+write_dta(students, path = "students.dta")
 
-write_dta(students, path = "C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/students.dta")
+write_dta(school, path = "school.dta")
 
-write_dta(school, path = "C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/school.dta")
+write_dta(teacher, path = "teacher.dta")
 
-write_dta(teacher, path = "C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/teacher.dta")
+#pisa_2022 <- read_dta("pisa_2022.dta")
 
-pisa_2022 <- read_dta("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/pisa_2022.dta")
+pisa_2022 <- merge(school, students, by = "CNTSCHID", all.x = TRUE)
 
 # Renombre de las variables ----
 
 pisa_2022 <- pisa_2022 %>%
   rename(
     # Identificadores (comunes a todas las tablas)
-    pais = CNT,
+    pais = CNT.x,
     id_pais = CNTRYID,
     id_escuela = CNTSCHID,
     id_estudiante = CNTSTUID,
@@ -265,16 +268,16 @@ pisa_2022 <- pisa_2022 %>%
     educacion_esperada = EXPECEDU,
     
     # Desempeño matemáticas
-    pv_math_1 = PV1MATH,
-    pv_math_2 = PV2MATH,
-    pv_math_3 = PV3MATH,
-    pv_math_4 = PV4MATH,
-    pv_math_5 = PV5MATH,
-    pv_math_6 = PV6MATH,
-    pv_math_7 = PV7MATH,
-    pv_math_8 = PV8MATH,
-    pv_math_9 = PV9MATH,
-    pv_math_10 = PV10MATH,
+    #pv_math_1 = PV1MATH,
+    #pv_math_2 = PV2MATH,
+    #pv_math_3 = PV3MATH,
+    #pv_math_4 = PV4MATH,
+    #pv_math_5 = PV5MATH,
+    #pv_math_6 = PV6MATH,
+    #pv_math_7 = PV7MATH,
+    #pv_math_8 = PV8MATH,
+    #pv_math_9 = PV9MATH,
+    #pv_math_10 = PV10MATH,
     autoeficacia_mate = MATHEFF,
     persistencia_mate = MATHPERS,
     
@@ -295,82 +298,83 @@ pisa_2022 <- pisa_2022 %>%
     retroalimentacion_profesores = TEAFDBK,
     actividades_extracurriculares_mate = MACTIV,
     cursos_extension_mate = MATHEXC,
-    agrupacion_habilidad_mate = ABGMATH,
-    
-    # Enfoque enseñanza matemáticas
-    enfoque_mundo_real = TC230Q01JA,
-    enfoque_estructura_logica = TC230Q02JA,
-    importancia_explicacion = TC230Q03JA,
-    problemas_dificiles = TC230Q07JA,
-    pocos_problemas_complejos = TC230Q08JA,
-    objetivo_logica = TC230Q09JA,
-    uso_tecnologia = TC230Q10JA,
-    creatividad_matematica = TC230Q11JA,
-    
-    # Prácticas docentes - pensamiento matemático
-    fomento_pensamiento_mate_1 = TC227Q01JA,
-    fomento_pensamiento_mate_2 = TC227Q02JA,
-    fomento_pensamiento_mate_3 = TC227Q03JA,
-    fomento_pensamiento_mate_4 = TC227Q04JA,
-    fomento_pensamiento_mate_5 = TC227Q05JA,
-    fomento_pensamiento_mate_6 = TC227Q06JA,
-    fomento_pensamiento_mate_7 = TC227Q07JA,
-    fomento_pensamiento_mate_8 = TC227Q08JA,
-    fomento_pensamiento_mate_9 = TC227Q09JA,
-    
-    # Prácticas docentes - razonamiento
-    explicacion_razonamiento_1 = TC228Q01JA,
-    explicacion_razonamiento_2 = TC228Q02JA,
-    explicacion_razonamiento_3 = TC228Q03JA,
-    explicacion_razonamiento_4 = TC228Q04JA,
-    explicacion_razonamiento_5 = TC228Q05JA,
-    explicacion_razonamiento_6 = TC228Q06JA,
-    explicacion_razonamiento_7 = TC228Q07JA,
-    explicacion_razonamiento_8 = TC228Q08JA,
-    explicacion_razonamiento_9 = TC228Q09JA,
-    
-    # Uso de tecnología
-    uso_software_1 = TC169Q01HA,
-    uso_software_2 = TC169Q02HA,
-    uso_software_3 = TC169Q03HA,
-    uso_software_4 = TC169Q04HA,
-    uso_software_5 = TC169Q05HA,
-    uso_software_6 = TC169Q06HA,
-    uso_software_7 = TC169Q07HA,
-    uso_software_8 = TC169Q08HA,
-    uso_software_9 = TC169Q09HA,
-    uso_software_10 = TC169Q10HA,
-    uso_software_11 = TC169Q11HA,
-    uso_software_12 = TC169Q13HA,
-    uso_software_13 = TC169Q14HA,
-    uso_software_14 = TC169Q15JA,
-    
-    # Recursos digitales
-    recursos_digitales_1 = TC220Q02JA,
-    recursos_digitales_2 = TC220Q04JA,
-    recursos_digitales_3 = TC220Q06JA,
-    recursos_digitales_4 = TC220Q07JA,
-    recursos_digitales_5 = TC220Q08JA,
-    recursos_digitales_6 = TC220Q09JA,
-    recursos_digitales_7 = TC220Q10JA,
-    recursos_digitales_8 = TC220Q11JA,
-    recursos_digitales_9 = TC220Q12JA,
-    
-    # Desarrollo profesional
-    desarrollo_profesional_1 = TC185Q01HA,
-    desarrollo_profesional_2 = TC185Q02HA,
-    desarrollo_profesional_3 = TC185Q03HA,
-    desarrollo_profesional_4 = TC185Q04HA,
-    desarrollo_profesional_5 = TC185Q05HA,
-    desarrollo_profesional_6 = TC185Q06HA,
-    desarrollo_profesional_7 = TC185Q08HA,
-    desarrollo_profesional_8 = TC185Q09HA,
-    desarrollo_profesional_9 = TC185Q10HA,
-    desarrollo_profesional_10 = TC185Q14HA,
-    desarrollo_profesional_11 = TC185Q15HA,
-    desarrollo_profesional_12 = TC185Q16HA,
-    desarrollo_profesional_13 = TC185Q18HA
+    agrupacion_habilidad_mate = ABGMATH
   )
+    
+  #   # Enfoque enseñanza matemáticas
+  #   enfoque_mundo_real = TC230Q01JA,
+  #   enfoque_estructura_logica = TC230Q02JA,
+  #   importancia_explicacion = TC230Q03JA,
+  #   problemas_dificiles = TC230Q07JA,
+  #   pocos_problemas_complejos = TC230Q08JA,
+  #   objetivo_logica = TC230Q09JA,
+  #   uso_tecnologia = TC230Q10JA,
+  #   creatividad_matematica = TC230Q11JA,
+  #   
+  #   # Prácticas docentes - pensamiento matemático
+  #   fomento_pensamiento_mate_1 = TC227Q01JA,
+  #   fomento_pensamiento_mate_2 = TC227Q02JA,
+  #   fomento_pensamiento_mate_3 = TC227Q03JA,
+  #   fomento_pensamiento_mate_4 = TC227Q04JA,
+  #   fomento_pensamiento_mate_5 = TC227Q05JA,
+  #   fomento_pensamiento_mate_6 = TC227Q06JA,
+  #   fomento_pensamiento_mate_7 = TC227Q07JA,
+  #   fomento_pensamiento_mate_8 = TC227Q08JA,
+  #   fomento_pensamiento_mate_9 = TC227Q09JA,
+  #   
+  #   # Prácticas docentes - razonamiento
+  #   explicacion_razonamiento_1 = TC228Q01JA,
+  #   explicacion_razonamiento_2 = TC228Q02JA,
+  #   explicacion_razonamiento_3 = TC228Q03JA,
+  #   explicacion_razonamiento_4 = TC228Q04JA,
+  #   explicacion_razonamiento_5 = TC228Q05JA,
+  #   explicacion_razonamiento_6 = TC228Q06JA,
+  #   explicacion_razonamiento_7 = TC228Q07JA,
+  #   explicacion_razonamiento_8 = TC228Q08JA,
+  #   explicacion_razonamiento_9 = TC228Q09JA,
+  #   
+  #   # Uso de tecnología
+  #   uso_software_1 = TC169Q01HA,
+  #   uso_software_2 = TC169Q02HA,
+  #   uso_software_3 = TC169Q03HA,
+  #   uso_software_4 = TC169Q04HA,
+  #   uso_software_5 = TC169Q05HA,
+  #   uso_software_6 = TC169Q06HA,
+  #   uso_software_7 = TC169Q07HA,
+  #   uso_software_8 = TC169Q08HA,
+  #   uso_software_9 = TC169Q09HA,
+  #   uso_software_10 = TC169Q10HA,
+  #   uso_software_11 = TC169Q11HA,
+  #   uso_software_12 = TC169Q13HA,
+  #   uso_software_13 = TC169Q14HA,
+  #   uso_software_14 = TC169Q15JA,
+  #   
+  #   # Recursos digitales
+  #   recursos_digitales_1 = TC220Q02JA,
+  #   recursos_digitales_2 = TC220Q04JA,
+  #   recursos_digitales_3 = TC220Q06JA,
+  #   recursos_digitales_4 = TC220Q07JA,
+  #   recursos_digitales_5 = TC220Q08JA,
+  #   recursos_digitales_6 = TC220Q09JA,
+  #   recursos_digitales_7 = TC220Q10JA,
+  #   recursos_digitales_8 = TC220Q11JA,
+  #   recursos_digitales_9 = TC220Q12JA,
+  #   
+  #   # Desarrollo profesional
+  #   desarrollo_profesional_1 = TC185Q01HA,
+  #   desarrollo_profesional_2 = TC185Q02HA,
+  #   desarrollo_profesional_3 = TC185Q03HA,
+  #   desarrollo_profesional_4 = TC185Q04HA,
+  #   desarrollo_profesional_5 = TC185Q05HA,
+  #   desarrollo_profesional_6 = TC185Q06HA,
+  #   desarrollo_profesional_7 = TC185Q08HA,
+  #   desarrollo_profesional_8 = TC185Q09HA,
+  #   desarrollo_profesional_9 = TC185Q10HA,
+  #   desarrollo_profesional_10 = TC185Q14HA,
+  #   desarrollo_profesional_11 = TC185Q15HA,
+  #   desarrollo_profesional_12 = TC185Q16HA,
+  #   desarrollo_profesional_13 = TC185Q18HA
+  # )
 
 # Crear la columna para expectativas de ejercicio profesiona en carreras stem ----
 
@@ -380,16 +384,16 @@ pisa_2022$ocupacion_3 <- as.numeric(pisa_2022$ocupacion_3)
 pisa_2022 <- pisa_2022 %>%
   mutate(stem = case_when(
     between(ocupacion_3, 2111, 2166) | 
-    between(ocupacion_3, 2511, 2529) | 
-    between(ocupacion_3, 3111, 3155) | 
-    between(ocupacion_3, 3511, 3522) |
-    ocupacion_3 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
+      between(ocupacion_3, 2511, 2529) | 
+      between(ocupacion_3, 3111, 3155) | 
+      between(ocupacion_3, 3511, 3522) |
+      ocupacion_3 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
     ocupacion_3 %in% c(9997, 9998, 9999) ~ NA,
     TRUE ~ 0
   ))
-    
-sum(pisa_2022$stem, na.rm = TRUE)
 
+sum(pisa_2022$stem, na.rm = TRUE)
+table(pisa_2022$stem, useNA = "ifany")
 
 #Padre
 pisa_2022$ocupacion_2 <- as.numeric(pisa_2022$ocupacion_2)
@@ -397,10 +401,10 @@ pisa_2022$ocupacion_2 <- as.numeric(pisa_2022$ocupacion_2)
 pisa_2022 <- pisa_2022 %>%
   mutate(stem_padre = case_when(
     between(ocupacion_2, 2111, 2166) | 
-    between(ocupacion_2, 2511, 2529) | 
-    between(ocupacion_2, 3111, 3155) | 
-    between(ocupacion_2, 3511, 3522) |
-    ocupacion_2 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
+      between(ocupacion_2, 2511, 2529) | 
+      between(ocupacion_2, 3111, 3155) | 
+      between(ocupacion_2, 3511, 3522) |
+      ocupacion_2 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
     ocupacion_2 %in% c(9997, 9998, 9999) ~ NA,
     TRUE ~ 0
   ))
@@ -414,14 +418,14 @@ pisa_2022$ocupacion_1 <- as.numeric(pisa_2022$ocupacion_1)
 pisa_2022 <- pisa_2022 %>%
   mutate(stem_madre = case_when(
     between(ocupacion_1, 2111, 2166) | 
-    between(ocupacion_1, 2511, 2529) | 
-    between(ocupacion_1, 3111, 3155) | 
-    between(ocupacion_1, 3511, 3522) |
-    ocupacion_1 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
+      between(ocupacion_1, 2511, 2529) | 
+      between(ocupacion_1, 3111, 3155) | 
+      between(ocupacion_1, 3511, 3522) |
+      ocupacion_1 %in% c(21, 25, 31, 35, 211:216, 251:252, 311:315, 351:352) ~ 1,
     ocupacion_1 %in% c(9997, 9998, 9999) ~ NA,
     TRUE ~ 0
   )) #between(ocupacion_1, 2211, 2222)| ocupacion_1 %in% c(22, 24, 221, 222, 225, 226, 241:243, 2250)
-     #between(ocupacion_1, 2261, 2269)| between(ocupacion_1, 2411, 2434)| between(ocupacion_1, 2631, 2634)
+#between(ocupacion_1, 2261, 2269)| between(ocupacion_1, 2411, 2434)| between(ocupacion_1, 2631, 2634)
 #22: medicina
 #24: Profesionales de negocios y administración
 #2631: Ciencias sociales
@@ -436,7 +440,7 @@ print(cuartiles)
 
 pisa_2022 <- pisa_2022 %>%
   mutate(pct_desfavorecidos_grp = case_when(
-         pct_desfavorecidos <= 8 ~ 1,
+    pct_desfavorecidos <= 8 ~ 1,
     8  < pct_desfavorecidos & pct_desfavorecidos <= 40 ~ 2,
     40 < pct_desfavorecidos & pct_desfavorecidos <= 75 ~ 3,
     75 < pct_desfavorecidos ~ 4,
@@ -449,30 +453,33 @@ pisa_2022 %>%
          ans =  n(),
          porc_ans= (1-(ms/ans))*100)
 
-#Puntaje de Matemática
+# Puntaje de Matemática
 library(dplyr)
 library(survey)
 
 pisa_2022 <- pisa_2022 %>%
   mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
 
+# Diseño muestral general
 survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
-paises <- unique(pisa_2022$CNT)
 
-#muestra de puntajes por países
-math_paises <- data.frame(
-  CNT = paises,
-  promedio_mate = sapply(paises, function(pais) {
-    svymean(~MATH_SCORE, subset(survey_design, CNT == pais))[[1]]  # Extrae el valor numérico
+# Calcular promedio de MATH_SCORE por país
+math_score <- data.frame(
+  pais = paises1,
+  promedio_mate = sapply(paises1, function(pais_i) {
+    # Filtrar el diseño muestral por país
+    svymean(~MATH_SCORE, subset(survey_design, pisa_2022$pais == pais_i))[[1]]
   })
 )
+
 print(math_score)
 
 #Idea clara del trabajo futuro
+library(tidyr)
 trabajo_futuro <- pisa_2022 %>%
-  group_by(CNT,SISCO) %>%
+  group_by(pais,SISCO) %>%
   summarise(count=n(), .grouos = 'drop')
-  
+
 trabajo_futuro <- trabajo_futuro %>%
   pivot_wider(names_from = SISCO, values_from = count, values_fill = 0)
 print(trabajo_futuro)
