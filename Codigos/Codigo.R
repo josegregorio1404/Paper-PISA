@@ -510,6 +510,64 @@ table(pisa_2022$stem,useNA = "ifany")
 #Condición migratoria: cond_migra, cond_migra_mama, cond_migra_papa
 #matematica_facil, matematica_favorita, 
 
+#Graficos y estadisticas descriptivas ----
+
+survey_design_sin_na <- subset(
+  survey_design, 
+  !is.na(HOMEPOS) & !is.na(W_FSTUWT)
+)
+
+por_pais <- svyby(~HOMEPOS, ~pais, survey_design_sin_na, svymean) %>% 
+  as.data.frame()
+
+
+OCDE <- svymean(~HOMEPOS, design = survey_design_sin_na) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("variable") %>%                                 # Convertir el nombre de fila en columna
+  mutate(variable = "OCDE") %>%                                              # Cambiar "HOMEPOS" por "OCDE"
+  rename(pais = variable, HOMEPOS = mean, se = HOMEPOS)                      # Renombrar la columna mean
+
+
+paises_graficos <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", 
+                     "PRY", "SLV", "URY", "GBR","AUS","ESP","DEU","FRA","GRC","SWE",
+                     "NLD","ITA","TUR","USA", "CAN", "OCDE")
+
+LATAM <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", 
+                       "MEX", "PAN", "PER", "PRY", "SLV", "URY")
+
+grafico_data <- rbind(por_pais, OCDE) %>%
+  filter(pais %in% paises_graficos) %>%
+  mutate(grupo = case_when(
+    pais == "OCDE" ~ "OCDE",
+    pais %in% LATAM ~ "América Latina",
+    TRUE ~ "Otros países"
+  ))
+
+
+library(ggplot2)
+
+ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)) +
+  geom_col() +
+  scale_fill_manual(
+    values = c("OCDE" = "red", 
+               "América Latina" = "green3", 
+               "Otros países" = "steelblue"),
+    name = "Región") +
+  labs(x = "Paises", y = "Patrimonio medio",title = "Patrimonio medio por estudiante y principales paises de estudio" ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    panel.grid.major = element_blank(),  # Elimina líneas de cuadrícula principales
+    panel.grid.minor = element_blank(),  # Elimina líneas de cuadrícula secundarias
+    panel.background = element_blank(),  # Fondo completamente blanco
+    plot.background = element_blank(),    # Fondo del área del gráfico blanco
+    plot.title = element_text(  # Especificaciones para centrar
+      hjust = 0.5,              # Centrado horizontal (0.5 = centro)
+      size = 14,                # Tamaño de fuente
+      face = "bold",            # Negrita
+      margin = margin(b = 10)   # Margen inferior
+    )
+  )
 
 
 
