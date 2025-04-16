@@ -569,9 +569,99 @@ ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)
     )
   )
 
+# correlaciones ----
+
+library(psych)
+
+vars <- c("educacion_madre", "educacion_padre","stem","HOMEPOS","genero","falta_comida_dinero", 
+          "habitacion_propia","internet_hogar","banos","matematica_facil","matematica_favorita",
+          "estatus_economico_actual","estatus_economico_futuro","vehiculos","software_educativo")
 
 
+svycor <- function(design, variables, method = "spearman") {
+  # Extraer datos y verificar
+  data <- design$variables[, variables, drop = FALSE]
+  
+  # Convertir a numérico
+  data <- data %>% mutate(across(everything(), as.numeric))
+  
+  # Manejar casos con NA
+  complete_cases <- complete.cases(data)
+  data <- data[complete_cases, ]
+  weights <- weights(design)[complete_cases]
+  
+  if(nrow(data) == 0) stop("No hay datos completos después de eliminar NA")
+  
+  # Cálculo de correlación
+  if(method == "spearman") {
+    data <- apply(data, 2, rank)
+  }
+  
+  cor_matrix <- cov.wt(data, wt = weights, cor = TRUE)$cor
+  colnames(cor_matrix) <- rownames(cor_matrix) <- variables
+  
+  return(cor_matrix)
+}
+
+# 3. Calcular correlaciones ponderadas
+cor_ponderada <- svycor(survey_design_sin_na, vars, method = "spearman")
+
+# 4. Visualización
+tabla_correlaciones <- as.data.frame(cor_ponderada)
 
 
+#Regresion logistica ----
+
+library(survey)
+
+survey_design_sin_na <- subset(survey_design_sin_na, complete.cases(survey_design_sin_na$variables[, vars]))
+survey_paises <- subset(survey_design_sin_na, pais %in% paises)
+
+# Especificar fórmula (ejemplo con variables predictoras)
+formula_logit <- stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
+  falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
+  matematica_facil + matematica_favorita + estatus_economico_actual + 
+  estatus_economico_futuro + vehiculos + software_educativo
+
+# Ajustar el modelo logístico ponderado
+modelo_logit <- svyglm(
+  formula = formula_logit,
+  design = survey_paises,
+  family = quasibinomial()  # Usar quasibinomial en lugar de binomial para evitar warnings
+)
+
+# Resumen del modelo
+summary(modelo_logit)
+
+install.packages("margins")
+library(margins)
+
+# Calcular efectos marginales promedio (AME)
+marg <- margins(modelo_logit, type = "response")  # type="response" da cambios en probabilidad
+
+efectos_marginales <- summary(marg) %>% 
+  rename_with(tolower) %>%  # Convertir nombres a minúsculas para evitar conflictos
+  mutate(
+    variable = recode(factor,
+                      "educacion_madre" = "Educación madre (años)",
+                      "educacion_padre" = "Educación padre (años)",
+                      "HOMEPOS" = "Índice HOMEPOS",
+                      "genero" = "Género (Ref: Mujer)",
+                      # ... completar con todas tus variables
+    ),
+    `Cambio (%)` = round(ame * 100, 1),
+    `IC 95% inferior` = round(lower * 100, 1),
+    `IC 95% superior` = round(upper * 100, 1),
+    `Valor p` = ifelse(p < 0.001, "<0.001", round(p, 3))
+  ) %>% 
+  select(
+    Variable = variable,
+    `Cambio (%)`,
+    `IC 95% inferior`,
+    `IC 95% superior`,
+    `Valor p`
+  )
+
+efectos_marginales
 
 
