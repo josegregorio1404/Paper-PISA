@@ -7,8 +7,8 @@ library(haven)
 library(dplyr)
 
 # Bases de datos separadas ----
-setwd("C:/Users/externo.babarca/Desktop/PISA/")
-#setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
+#setwd("C:/Users/externo.babarca/Desktop/PISA/")
+setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
 #setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/")
 
 
@@ -52,14 +52,14 @@ students <- CY08MSP_STU_QQQ %>%
          PA197Q02WA, EXPECEDU, PA197Q02WA, PA197Q03WA, PA197Q04WA, PA197Q05WA,
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
          PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO,
-         HOMEPOS, ST019AQ01T, ST019BQ01T, ST019CQ01T) %>%
-  filter(CNT %in% paises)
+         HOMEPOS, ST019AQ01T, ST019BQ01T, ST019CQ01T)
+  #filter(CNT %in% paises)
 
 
 school <- CY08MSP_SCH_QQQ %>%
   select(CNT, CNTSCHID, SC013Q01TA, SC016Q01TA, SC004Q02TA, SC004Q03TA, SC004Q07NA, SC211Q03JA,STRATIO, 
-         SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH) %>%
-  filter(CNT %in% paises)
+         SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH)
+  #filter(CNT %in% paises)
 
 teacher <- CY08MSP_TCH_QQQ %>%
   select(CNT, CNTSCHID, TC230Q01JA, TC230Q02JA, TC230Q03JA, TC230Q07JA,
@@ -74,8 +74,8 @@ teacher <- CY08MSP_TCH_QQQ %>%
          TC220Q08JA, TC220Q09JA, TC220Q10JA, TC220Q11JA, TC220Q12JA,
          TC185Q01HA, TC185Q02HA, TC185Q03HA, TC185Q04HA, TC185Q05HA, 
          TC185Q06HA, TC185Q08HA, TC185Q09HA, TC185Q10HA, TC185Q14HA,
-         TC185Q15HA, TC185Q16HA, TC185Q18HA) %>%
-  filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
+         TC185Q15HA, TC185Q16HA, TC185Q18HA)
+  #filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
 
 # Juntar las tablas por ID de escuela y ID de pais (Revisar STATA) ----
 write_dta(students, path = "students.dta")
@@ -511,11 +511,13 @@ table(pisa_2022$stem,useNA = "ifany")
 #matematica_facil, matematica_favorita, 
 
 #Recodificación y creación de variables
+paper_corto <- pisa_2022 %>%
+  filter(pais %in% paises)
 
-table(pisa_2022$pais,useNA = "ifany")
-table(pisa_2022$SISCO,useNA = "ifany")
-table(pisa_2022$stem,useNA = "ifany")
-table(pisa_2022$HOMEPOS,useNA = "ifany")
+table(paper_corto$pais,useNA = "ifany")
+table(paper_corto$SISCO,useNA = "ifany")
+table(paper_corto$stem,useNA = "ifany")
+table(paper_corto$HOMEPOS,useNA = "ifany")
 
 #Educación:
 #1= <ISCED level 3A> = educación secundaria (bachillerato o preparatoria)
@@ -524,57 +526,57 @@ table(pisa_2022$HOMEPOS,useNA = "ifany")
 #4= <ISCED level 1> = educación primaria o básica
 #5= <no completó ISCED level 1> = no completó educaicón primaria
 #6= NA = No aplica
-table(pisa_2022$educacion_madre,useNA = "ifany")
-table(pisa_2022$educacion_padre,useNA = "ifany")
+table(paper_corto$educacion_madre,useNA = "ifany")
+table(paper_corto$educacion_padre,useNA = "ifany")
 
 #Graficos y estadisticas descriptivas ----
-  #Estadísticas descriptivas
+#Estadísticas descriptivas
 
 #Tipo de escuela (1=pública, 2=privada)
-table(pisa_2022$tipo_escuela,useNA = "ifany")
+table(paper_corto$tipo_escuela,useNA = "ifany")
 
 #Falta comida en el hogar
 #1=nunca o casi nunca, 2=Alrededor de una vez a la semana, 3=2 a 3 veces por semana
 #4=4 a 5 veces por semana, 5=todos o casi todos los días, NA=Missing
-table(pisa_2022$falta_comida_dinero,useNA = "ifany")
+table(paper_corto$falta_comida_dinero,useNA = "ifany")
 
 #Habitación propia
 #1=Si, 2=No, NA=Missing
-table(pisa_2022$habitacion_propia,useNA = "ifany")
+table(paper_corto$habitacion_propia,useNA = "ifany")
 
 #Internet en el hogar
 #1=Si, 2=No, NA=Missing
-table(pisa_2022$internet_hogar,useNA = "ifany")
+table(paper_corto$internet_hogar,useNA = "ifany")
 
 #Banos
 #1=Ninguno, 2=Uno, 3=Dos, 4=Tres o más, NA=Missing
-table(pisa_2022$banos,useNA = "ifany")
+table(paper_corto$banos,useNA = "ifany")
 
 #Genero
 #1=Mujer, 2=Hombre, NA=Missing
-table(pisa_2022$genero,useNA = "ifany")
+table(paper_corto$genero,useNA = "ifany")
 
 #Condición migratoria (estudiante)
 #1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
-table(pisa_2022$cond_migra,useNA = "ifany")
+table(paper_corto$cond_migra,useNA = "ifany")
 
 #Condición migratoria (Mamá)
 #1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
-table(pisa_2022$cond_migra_mama,useNA = "ifany")
+table(paper_corto$cond_migra_mama,useNA = "ifany")
 
 #Condición migratoria (Papá)
 #1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
-table(pisa_2022$cond_migra_papa,useNA = "ifany")
+table(paper_corto$cond_migra_papa,useNA = "ifany")
 
 #Matemática es fácil para mi
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
-table(pisa_2022$matematica_facil,useNA = "ifany")
+table(paper_corto$matematica_facil,useNA = "ifany")
 
 #Matemática es uno de mis cursos favoritos
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
-table(pisa_2022$matematica_favorita,useNA = "ifany")
+table(paper_corto$matematica_favorita,useNA = "ifany")
 
-  #Gráficos
+#Gráficos
 
 #Patrimonio medio por estudiante y principales paices de estudio
 survey_design_sin_na <- subset(
@@ -635,7 +637,7 @@ ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)
   )
 
 #Cantidad de estudiantes por país y género
-pisa_2022 %>%
+paper_corto %>%
   select(pais, genero) %>%
   group_by(pais, genero) %>%
   summarise(cuenta = n(), .groups = "drop") %>%
@@ -644,7 +646,7 @@ pisa_2022 %>%
   print()
 
 #Nivel de riqueza por país
-ggplot(pisa_2022, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
+ggplot(paper_corto, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
   stat_summary(fun = mean, geom = "bar", fill = "skyblue") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = -0.5, size = 3) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
@@ -652,7 +654,7 @@ ggplot(pisa_2022, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
   xlab("País") +
   ylab("Media de la Riqueza")
 
-ggplot(pisa_2022, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(genero))) +
+ggplot(paper_corto, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(genero))) +
   stat_summary(fun = mean, geom = "bar", position = position_dodge(width = 0.9)) +
   stat_summary(fun = mean, geom = "text",
                aes(label = round(..y.., 1)),
@@ -667,7 +669,7 @@ ggplot(pisa_2022, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(
                     name = "Género")
 
 #Densidad por género
-ggplot(pisa_2022, aes(x = MATH_SCORE, fill = as.factor(genero), group = genero)) +
+ggplot(paper_corto, aes(x = MATH_SCORE, fill = as.factor(genero), group = genero)) +
   geom_density(alpha = 0.6) +
   scale_fill_manual(values = c("steelblue", "salmon"),
                     labels = c("Hombre", "Mujer"),
@@ -685,7 +687,7 @@ vars <- c("educacion_madre", "educacion_padre","stem","HOMEPOS","genero","falta_
           "habitacion_propia","internet_hogar","banos","matematica_facil","matematica_favorita",
           "estatus_economico_actual","estatus_economico_futuro","vehiculos","software_educativo")
 
-pisa_2022 <- pisa_2022 %>%
+paper_corto <- paper_corto %>%
   select(all_of(vars), W_FSTUWT, id_estudiante) %>%
   na.omit()
 
@@ -744,7 +746,7 @@ ggplot(cor_long, aes(x = Var1, y = Var2, fill = value)) +
 logit <- glm(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
                falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
                matematica_facil + matematica_favorita + estatus_economico_actual + 
-               estatus_economico_futuro + vehiculos + software_educativo, family = "binomial", data = pisa_2022)
+               estatus_economico_futuro + vehiculos + software_educativo, family = "binomial", data = paper_corto)
 summary(logit)
 
 #install.packages("stargazer")
@@ -755,9 +757,9 @@ stargazer(logit, type="text")
 #install.packages("mfx")
 library(mfx)
 logitmfx <- logitmfx(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
-                    falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
-                    matematica_facil + matematica_favorita + estatus_economico_actual + 
-                    estatus_economico_futuro + vehiculos + software_educativo, data = pisa_2022)
+                       falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
+                       matematica_facil + matematica_favorita + estatus_economico_actual + 
+                       estatus_economico_futuro + vehiculos + software_educativo, data = paper_corto)
 logitmfx
 
 #Odds ratio
@@ -785,13 +787,13 @@ probabilidades
 #========ESTIMACIÓN POBLACIONAL
 #Diseñamos el factor poblacional--------------------------------------------
 
-facpob <- pisa_2022$W_FSTUWT # factor de expansión
+facpob <- paper_corto$W_FSTUWT # factor de expansión
 
 ##3. Declaración del diseño muestral--------------------------------------------
 #install.packages("survey")
 library(survey)
 
-diseno <- svydesign(id=~id_estudiante, weight=~W_FSTUWT, data=pisa_2022, nest=TRUE)
+diseno <- svydesign(id=~id_estudiante, weight=~W_FSTUWT, data=paper_corto, nest=TRUE)
 
 #Estimación logit con factor --------------------------------------------------
 
@@ -801,7 +803,7 @@ logit_pob <-
            matematica_facil + matematica_favorita + estatus_economico_actual + 
            estatus_economico_futuro + vehiculos + software_educativo, 
          family = binomial(link = "logit"),
-         design = diseno)
+         design = diseno, data = paper_corto)
 summary(logit_pob)
 
 #install.packages("stargazer")
@@ -830,5 +832,7 @@ prlogitpob
 head(prlogitpob)
 
 summary(prlogitpob)
+
+#LROC
 
 
