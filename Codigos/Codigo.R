@@ -510,8 +510,73 @@ table(pisa_2022$stem,useNA = "ifany")
 #Condición migratoria: cond_migra, cond_migra_mama, cond_migra_papa
 #matematica_facil, matematica_favorita, 
 
-#Graficos y estadisticas descriptivas ----
+#Recodificación y creación de variables
 
+table(pisa_2022$pais,useNA = "ifany")
+table(pisa_2022$SISCO,useNA = "ifany")
+table(pisa_2022$stem,useNA = "ifany")
+table(pisa_2022$HOMEPOS,useNA = "ifany")
+
+#Educación:
+#1= <ISCED level 3A> = educación secundaria (bachillerato o preparatoria)
+#2= <ISCED level 3B, 3C> = educación secundaria superior con orientación técnica (programas técnicos luego de la secundaria básica)
+#3= <ISCED level 2> = educación secundaria básica o primer ciclo de secundaria (media inferior o secundaria obligatoria)
+#4= <ISCED level 1> = educación primaria o básica
+#5= <no completó ISCED level 1> = no completó educaicón primaria
+#6= NA = No aplica
+table(pisa_2022$educacion_madre,useNA = "ifany")
+table(pisa_2022$educacion_padre,useNA = "ifany")
+
+#Graficos y estadisticas descriptivas ----
+  #Estadísticas descriptivas
+
+#Tipo de escuela (1=pública, 2=privada)
+table(pisa_2022$tipo_escuela,useNA = "ifany")
+
+#Falta comida en el hogar
+#1=nunca o casi nunca, 2=Alrededor de una vez a la semana, 3=2 a 3 veces por semana
+#4=4 a 5 veces por semana, 5=todos o casi todos los días, NA=Missing
+table(pisa_2022$falta_comida_dinero,useNA = "ifany")
+
+#Habitación propia
+#1=Si, 2=No, NA=Missing
+table(pisa_2022$habitacion_propia,useNA = "ifany")
+
+#Internet en el hogar
+#1=Si, 2=No, NA=Missing
+table(pisa_2022$internet_hogar,useNA = "ifany")
+
+#Banos
+#1=Ninguno, 2=Uno, 3=Dos, 4=Tres o más, NA=Missing
+table(pisa_2022$banos,useNA = "ifany")
+
+#Genero
+#1=Mujer, 2=Hombre, NA=Missing
+table(pisa_2022$genero,useNA = "ifany")
+
+#Condición migratoria (estudiante)
+#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+table(pisa_2022$cond_migra,useNA = "ifany")
+
+#Condición migratoria (Mamá)
+#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+table(pisa_2022$cond_migra_mama,useNA = "ifany")
+
+#Condición migratoria (Papá)
+#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+table(pisa_2022$cond_migra_papa,useNA = "ifany")
+
+#Matemática es fácil para mi
+#1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
+table(pisa_2022$matematica_facil,useNA = "ifany")
+
+#Matemática es uno de mis cursos favoritos
+#1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
+table(pisa_2022$matematica_favorita,useNA = "ifany")
+
+  #Gráficos
+
+#Patrimonio medio por estudiante y principales paices de estudio
 survey_design_sin_na <- subset(
   survey_design, 
   !is.na(HOMEPOS) & !is.na(W_FSTUWT)
@@ -533,7 +598,7 @@ paises_graficos <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PE
                      "NLD","ITA","TUR","USA", "CAN", "OCDE")
 
 LATAM <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", 
-                       "MEX", "PAN", "PER", "PRY", "SLV", "URY")
+           "MEX", "PAN", "PER", "PRY", "SLV", "URY")
 
 grafico_data <- rbind(por_pais, OCDE) %>%
   filter(pais %in% paises_graficos) %>%
@@ -569,6 +634,49 @@ ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)
     )
   )
 
+#Cantidad de estudiantes por país y género
+pisa_2022 %>%
+  select(pais, genero) %>%
+  group_by(pais, genero) %>%
+  summarise(cuenta = n(), .groups = "drop") %>%
+  pivot_wider(names_from = genero, values_from = cuenta, names_prefix = "genero_") %>%
+  arrange(desc(genero_1 + genero_2)) %>%
+  print()
+
+#Nivel de riqueza por país
+ggplot(pisa_2022, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
+  stat_summary(fun = mean, geom = "bar", fill = "skyblue") +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = -0.5, size = 3) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ggtitle("Ranking de países por nivel de riqueza (ascendente)") +
+  xlab("País") +
+  ylab("Media de la Riqueza")
+
+ggplot(pisa_2022, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(genero))) +
+  stat_summary(fun = mean, geom = "bar", position = position_dodge(width = 0.9)) +
+  stat_summary(fun = mean, geom = "text",
+               aes(label = round(..y.., 1)),
+               position = position_dodge(width = 0.9),
+               vjust = -0.5, size = 3) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  ggtitle("Media de Riqueza por País y Género") +
+  xlab("País") +
+  ylab("Media de la Riqueza") +
+  scale_fill_manual(values = c("steelblue", "salmon"),
+                    labels = c("Hombre", "Mujer"),
+                    name = "Género")
+
+#Densidad por género
+ggplot(pisa_2022, aes(x = MATH_SCORE, fill = as.factor(genero), group = genero)) +
+  geom_density(alpha = 0.6) +
+  scale_fill_manual(values = c("steelblue", "salmon"),
+                    labels = c("Hombre", "Mujer"),
+                    name = "Género") +
+  ggtitle("Distribución del Puntaje en Matemáticas por Género") +
+  xlab("Puntaje en Matemáticas") +
+  ylab("Densidad") +
+  facet_wrap(. ~ pais)
+
 # correlaciones ----
 
 library(psych)
@@ -577,6 +685,9 @@ vars <- c("educacion_madre", "educacion_padre","stem","HOMEPOS","genero","falta_
           "habitacion_propia","internet_hogar","banos","matematica_facil","matematica_favorita",
           "estatus_economico_actual","estatus_economico_futuro","vehiculos","software_educativo")
 
+pisa_2022 <- pisa_2022 %>%
+  select(all_of(vars), W_FSTUWT, id_estudiante) %>%
+  na.omit()
 
 svycor <- function(design, variables, method = "spearman") {
   # Extraer datos y verificar
@@ -608,60 +719,116 @@ cor_ponderada <- svycor(survey_design_sin_na, vars, method = "spearman")
 
 # 4. Visualización
 tabla_correlaciones <- as.data.frame(cor_ponderada)
+tabla_correlaciones
 
+library(reshape2)
+library(ggplot2)
+cor_long <- melt(cor_ponderada)
+
+# Crear el gráfico de calor
+ggplot(cor_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1, 1), space = "Lab",
+                       name = "Correlación\nSpearman") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    axis.title = element_blank()
+  ) +
+  coord_fixed()
 
 #Regresion logistica ----
+#Regresión muestral
 
+logit <- glm(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
+               falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
+               matematica_facil + matematica_favorita + estatus_economico_actual + 
+               estatus_economico_futuro + vehiculos + software_educativo, family = "binomial", data = pisa_2022)
+summary(logit)
+
+#install.packages("stargazer")
+library(stargazer)
+stargazer(logit, type="text")
+
+#Efectos muestrales
+#install.packages("mfx")
+library(mfx)
+logitmfx <- logitmfx(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
+                    falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
+                    matematica_facil + matematica_favorita + estatus_economico_actual + 
+                    estatus_economico_futuro + vehiculos + software_educativo, data = pisa_2022)
+logitmfx
+
+#Odds ratio
+cbind(Estimate=round(coef(logit),5),
+      OR=round(exp(coef(logit)),5))
+
+#Bondad de ajuste
+#install.packages("pscl")
+library(pscl)
+
+pR2(logit)[["McFadden"]]
+
+#Criterios de información
+AIC(logit)
+BIC(logit)
+
+#Proyección de probabilidades
+prlogit=predict(logit,type="response")
+summary(logit)
+
+#Crear una data de las predicciones de las probabilidades
+probabilidades<-cbind (logit)
+probabilidades
+
+#========ESTIMACIÓN POBLACIONAL
+#Diseñamos el factor poblacional--------------------------------------------
+
+facpob <- pisa_2022$W_FSTUWT # factor de expansión
+
+##3. Declaración del diseño muestral--------------------------------------------
+#install.packages("survey")
 library(survey)
 
-survey_design_sin_na <- subset(survey_design_sin_na, complete.cases(survey_design_sin_na$variables[, vars]))
-survey_paises <- subset(survey_design_sin_na, pais %in% paises)
+diseno <- svydesign(id=~id_estudiante, weight=~W_FSTUWT, data=pisa_2022, nest=TRUE)
 
-# Especificar fórmula (ejemplo con variables predictoras)
-formula_logit <- stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
-  falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
-  matematica_facil + matematica_favorita + estatus_economico_actual + 
-  estatus_economico_futuro + vehiculos + software_educativo
+#Estimación logit con factor --------------------------------------------------
 
-# Ajustar el modelo logístico ponderado
-modelo_logit <- svyglm(
-  formula = formula_logit,
-  design = survey_paises,
-  family = quasibinomial()  # Usar quasibinomial en lugar de binomial para evitar warnings
-)
+logit_pob <- 
+  svyglm(stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
+           falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
+           matematica_facil + matematica_favorita + estatus_economico_actual + 
+           estatus_economico_futuro + vehiculos + software_educativo, 
+         family = binomial(link = "logit"),
+         design = diseno)
+summary(logit_pob)
 
-# Resumen del modelo
-summary(modelo_logit)
+#install.packages("stargazer")
+library(stargazer)
+stargazer(logit_pob, type="text")
 
-install.packages("margins")
+#EFECTOS MARGINALES-------------------------------------------------
+#Efecto marginal con factor-----------------------------------------------------
+#install.packages("margins")
 library(margins)
 
-# Calcular efectos marginales promedio (AME)
-marg <- margins(modelo_logit, type = "response")  # type="response" da cambios en probabilidad
+margins(logit_pob,design = diseno)
+summary(margins(logit_pob,design = diseno))
 
-efectos_marginales <- summary(marg) %>% 
-  rename_with(tolower) %>%  # Convertir nombres a minúsculas para evitar conflictos
-  mutate(
-    variable = recode(factor,
-                      "educacion_madre" = "Educación madre (años)",
-                      "educacion_padre" = "Educación padre (años)",
-                      "HOMEPOS" = "Índice HOMEPOS",
-                      "genero" = "Género (Ref: Mujer)",
-                      # ... completar con todas tus variables
-    ),
-    `Cambio (%)` = round(ame * 100, 1),
-    `IC 95% inferior` = round(lower * 100, 1),
-    `IC 95% superior` = round(upper * 100, 1),
-    `Valor p` = ifelse(p < 0.001, "<0.001", round(p, 3))
-  ) %>% 
-  select(
-    Variable = variable,
-    `Cambio (%)`,
-    `IC 95% inferior`,
-    `IC 95% superior`,
-    `Valor p`
-  )
+#BONDAD DE AJUSTE---------------------------------
+#Con factor--------------------
+#install.packages("jtools")
+library(jtools)
 
-efectos_marginales
+summ(logit_pob)
+
+#PROYECCIÓN DE PROBABILIDADES-------------------------------------------
+prlogitpob=predict(logit_pob,type="response")
+prlogitpob
+
+head(prlogitpob)
+
+summary(prlogitpob)
 
 
