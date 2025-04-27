@@ -8,8 +8,8 @@ library(dplyr)
 
 # Bases de datos separadas ----
 #setwd("C:/Users/externo.babarca/Desktop/PISA/")
-setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
-#setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/base2/")
+#setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
+setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/bases de datos/")
 
 
 CY08MSP_STU_QQQ <- read_sas("CY08MSP_STU_QQQ.SAS7BDAT", NULL)
@@ -22,7 +22,7 @@ CY08MSP_TCH_QQQ <- read_sas("CY08MSP_TCH_QQQ.SAS7BDAT", NULL)
 # Filtra durante la lectura (menos eficiente que Python para archivos muy grandes) ----
 
 paises <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", "PRY", "SLV", "URY")
-paises1 <- c("BRA", "COL", "CRI", "PAN", "PER")
+#paises1 <- c("BRA", "COL", "CRI", "PAN", "PER")
 
 students <- CY08MSP_STU_QQQ %>%
   select(CNT, CNTRYID, CNTSCHID, CNTSTUID, ST250Q01JA,ST250Q03JA,ST251Q06JA,
@@ -119,13 +119,13 @@ pisa_2022 <- pisa_2022 %>%
     vehiculos = ST251Q01JA,
     banos = ST251Q03JA,
     
-    # Índice socioeconómico
+    # Ãndice socioeconÃ³mico
     falta_comida_dinero = ST258Q01JA,
     estatus_economico_actual = ST259Q01JA,
     estatus_economico_futuro = ST259Q02JA,
     pct_desfavorecidos = SC211Q03JA,
     
-    # Educación padres
+    # EducaciÃ³n padres
     educacion_madre = ST005Q01JA,
     calificaciones_madre_1 = ST006Q01JA,
     calificaciones_madre_2 = ST006Q02JA,
@@ -139,10 +139,10 @@ pisa_2022 <- pisa_2022 %>%
     calificaciones_padre_4 = ST008Q04JA,
     calificaciones_padre_5 = ST008Q05JA,
     
-    # Género
+    # GÃ©nero
     genero = ST004D01T,
     
-    # Autopercepción y actitudes
+    # AutopercepciÃ³n y actitudes
     matematica_favorita = ST268Q01JA,
     matematica_facil = ST268Q04JA,
     buen_desempeno_mate = ST268Q07JA,
@@ -201,7 +201,7 @@ pisa_2022 <- pisa_2022 %>%
     seguridad_clase = ST265Q03JA,
     seguridad_escuela = ST265Q04JA,
     
-    # Motivación y hábitos de estudio
+    # MotivaciÃ³n y hÃ¡bitos de estudio
     persistencia_tarea = ST307Q01JA,
     esfuerzo_desafio = ST307Q02JA,
     mas_persistente = ST307Q05JA,
@@ -216,7 +216,7 @@ pisa_2022 <- pisa_2022 %>%
     estudio_tarde = ST295Q02JA,
     dispositivos_clase = ST322Q04JA,
     
-    # Ansiedad matemáticas
+    # Ansiedad matemÃ¡ticas
     ansiedad_mate = ANXMAT,
     ansiedad_mate_1 = ST292Q01JA,
     ansiedad_mate_2 = ST292Q02JA,
@@ -271,7 +271,7 @@ pisa_2022 <- pisa_2022 %>%
     expectativa_carrera_mate_4 = PA197Q05WA,
     educacion_esperada = EXPECEDU,
     
-    # Desempeño matemáticas
+    # DesempeÃ±o matemÃ¡ticas
     #pv_math_1 = PV1MATH,
     #pv_math_2 = PV2MATH,
     #pv_math_3 = PV3MATH,
@@ -285,7 +285,7 @@ pisa_2022 <- pisa_2022 %>%
     autoeficacia_mate = MATHEFF,
     persistencia_mate = MATHPERS,
     
-    # Ocupación padres
+    # OcupaciÃ³n padres
     ocupacion_1 = OCOD1,
     ocupacion_2 = OCOD2,
     ocupacion_3 = OCOD3,
@@ -305,7 +305,7 @@ pisa_2022 <- pisa_2022 %>%
     agrupacion_habilidad_mate = ABGMATH
   )
 
-#   # Enfoque enseñanza matemáticas
+#   # Enfoque enseÃ±anza matemÃ¡ticas
 #   enfoque_mundo_real = TC230Q01JA,
 #   enfoque_estructura_logica = TC230Q02JA,
 #   importancia_explicacion = TC230Q03JA,
@@ -315,7 +315,7 @@ pisa_2022 <- pisa_2022 %>%
 #   uso_tecnologia = TC230Q10JA,
 #   creatividad_matematica = TC230Q11JA,
 #   
-#   # Prácticas docentes - pensamiento matemático
+#   # PrÃ¡cticas docentes - pensamiento matemÃ¡tico
 #   fomento_pensamiento_mate_1 = TC227Q01JA,
 #   fomento_pensamiento_mate_2 = TC227Q02JA,
 #   fomento_pensamiento_mate_3 = TC227Q03JA,
@@ -326,7 +326,7 @@ pisa_2022 <- pisa_2022 %>%
 #   fomento_pensamiento_mate_8 = TC227Q08JA,
 #   fomento_pensamiento_mate_9 = TC227Q09JA,
 #   
-#   # Prácticas docentes - razonamiento
+#   # PrÃ¡cticas docentes - razonamiento
 #   explicacion_razonamiento_1 = TC228Q01JA,
 #   explicacion_razonamiento_2 = TC228Q02JA,
 #   explicacion_razonamiento_3 = TC228Q03JA,
@@ -337,7 +337,7 @@ pisa_2022 <- pisa_2022 %>%
 #   explicacion_razonamiento_8 = TC228Q08JA,
 #   explicacion_razonamiento_9 = TC228Q09JA,
 #   
-#   # Uso de tecnología
+#   # Uso de tecnologÃ­a
 #   uso_software_1 = TC169Q01HA,
 #   uso_software_2 = TC169Q02HA,
 #   uso_software_3 = TC169Q03HA,
@@ -382,7 +382,7 @@ pisa_2022 <- pisa_2022 %>%
 
 # Crear la columna para expectativas de ejercicio profesional en carreras stem ----
 
-#Estudiante (9997 -> N/A, 9998 -> Inválido, 9999 -> Missing)
+#Estudiante (9997 -> N/A, 9998 -> InvÃ¡lido, 9999 -> Missing)
 pisa_2022$ocupacion_3 <- as.numeric(pisa_2022$ocupacion_3)
 
 pisa_2022 <- pisa_2022 %>%
@@ -431,7 +431,7 @@ pisa_2022 <- pisa_2022 %>%
   )) #between(ocupacion_1, 2211, 2222)| ocupacion_1 %in% c(22, 24, 221, 222, 225, 226, 241:243, 2250)
 #between(ocupacion_1, 2261, 2269)| between(ocupacion_1, 2411, 2434)| between(ocupacion_1, 2631, 2634)
 #22: medicina
-#24: Profesionales de negocios y administración
+#24: Profesionales de negocios y administraciÃ³n
 #2631: Ciencias sociales
 
 sum(pisa_2022$stem_madre, na.rm = TRUE)
@@ -439,15 +439,18 @@ sum(pisa_2022$stem_madre, na.rm = TRUE)
 
 # Recodificar las variables que sean necesarias recodificar
 
-cuartiles <- quantile(pisa_2022$pct_desfavorecidos, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
+cuartiles <- pisa_2022 %>%
+  filter(pais %in% paises) %>%
+  pull(pct_desfavorecidos) %>%  # Extrae la columna numérica
+  quantile(probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
 print(cuartiles)
 
 pisa_2022 <- pisa_2022 %>%
   mutate(pct_desfavorecidos_grp = case_when(
-    pct_desfavorecidos <= 8 ~ 1,
-    8  < pct_desfavorecidos & pct_desfavorecidos <= 40 ~ 2,
-    40 < pct_desfavorecidos & pct_desfavorecidos <= 75 ~ 3,
-    75 < pct_desfavorecidos ~ 4,
+    pct_desfavorecidos <= 9 ~ 1,
+    9  < pct_desfavorecidos & pct_desfavorecidos <= 35 ~ 2,
+    35 < pct_desfavorecidos & pct_desfavorecidos <= 70 ~ 3,
+    70 < pct_desfavorecidos ~ 4,
     TRUE ~ 99))
 
 pisa_2022 %>%
@@ -457,21 +460,21 @@ pisa_2022 %>%
          ans =  n(),
          porc_ans= (1-(ms/ans))*100)
 
-# Puntaje de Matemática
+# Puntaje de MatemÃ¡tica
 library(dplyr)
 library(survey)
 
 pisa_2022 <- pisa_2022 %>%
   mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
 
-# Diseño muestral general
+# DiseÃ±o muestral general
 survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
 
-# Calcular promedio de MATH_SCORE por país
+# Calcular promedio de MATH_SCORE por paÃ­s
 math_score <- data.frame(
-  pais = paises1,
-  promedio_mate = sapply(paises1, function(pais_i) {
-    # Filtrar el diseño muestral por país
+  pais = paises,
+  promedio_mate = sapply(paises, function(pais_i) {
+    # Filtrar el diseÃ±o muestral por paÃ­s
     svymean(~MATH_SCORE, subset(survey_design, pisa_2022$pais == pais_i))[[1]]
   })
 )
@@ -501,16 +504,16 @@ print(prueba)
 table(pisa_2022$stem,useNA = "ifany")
 
 # Variables ----
-#Aspiración a una carrera stem: stem
+#AspiraciÃ³n a una carrera stem: stem
 #Nivel educativo de los padres: educacion_madre, educacion_padre
-#Índice socio-económico: HOMEPOS
+#Ãndice socio-econÃ³mico: HOMEPOS
 #Financiamiento de la escuela: tipo_escuela
 #Acceso a recursos en el hogar:falta_comida_dinero, habitacion_propia, internet_hogar, banos, 
-#Género: genero
-#Condición migratoria: cond_migra, cond_migra_mama, cond_migra_papa
+#GÃ©nero: genero
+#CondiciÃ³n migratoria: cond_migra, cond_migra_mama, cond_migra_papa
 #matematica_facil, matematica_favorita, 
 
-#Recodificación y creación de variables
+#RecodificaciÃ³n y creaciÃ³n de variables
 paper_corto <- pisa_2022 %>%
   filter(pais %in% paises)
 
@@ -519,28 +522,28 @@ table(paper_corto$SISCO,useNA = "ifany")
 table(paper_corto$stem,useNA = "ifany")
 table(paper_corto$HOMEPOS,useNA = "ifany")
 
-#Educación:
-#1= <ISCED level 3A> = educación secundaria (bachillerato o preparatoria)
-#2= <ISCED level 3B, 3C> = educación secundaria superior con orientación técnica (programas técnicos luego de la secundaria básica)
-#3= <ISCED level 2> = educación secundaria básica o primer ciclo de secundaria (media inferior o secundaria obligatoria)
-#4= <ISCED level 1> = educación primaria o básica
-#5= <no completó ISCED level 1> = no completó educaicón primaria
+#EducaciÃ³n:
+#1= <ISCED level 3A> = educaciÃ³n secundaria (bachillerato o preparatoria)
+#2= <ISCED level 3B, 3C> = educaciÃ³n secundaria superior con orientaciÃ³n tÃ©cnica (programas tÃ©cnicos luego de la secundaria bÃ¡sica)
+#3= <ISCED level 2> = educaciÃ³n secundaria bÃ¡sica o primer ciclo de secundaria (media inferior o secundaria obligatoria)
+#4= <ISCED level 1> = educaciÃ³n primaria o bÃ¡sica
+#5= <no completÃ³ ISCED level 1> = no completÃ³ educaicÃ³n primaria
 #6= NA = No aplica
 table(paper_corto$educacion_madre,useNA = "ifany")
 table(paper_corto$educacion_padre,useNA = "ifany")
 
 #Graficos y estadisticas descriptivas ----
-#Estadísticas descriptivas
+#EstadÃ­sticas descriptivas
 
-#Tipo de escuela (1=pública, 2=privada)
+#Tipo de escuela (1=pÃºblica, 2=privada)
 table(paper_corto$tipo_escuela,useNA = "ifany")
 
 #Falta comida en el hogar
 #1=nunca o casi nunca, 2=Alrededor de una vez a la semana, 3=2 a 3 veces por semana
-#4=4 a 5 veces por semana, 5=todos o casi todos los días, NA=Missing
+#4=4 a 5 veces por semana, 5=todos o casi todos los dÃ­as, NA=Missing
 table(paper_corto$falta_comida_dinero,useNA = "ifany")
 
-#Habitación propia
+#HabitaciÃ³n propia
 #1=Si, 2=No, NA=Missing
 table(paper_corto$habitacion_propia,useNA = "ifany")
 
@@ -549,34 +552,34 @@ table(paper_corto$habitacion_propia,useNA = "ifany")
 table(paper_corto$internet_hogar,useNA = "ifany")
 
 #Banos
-#1=Ninguno, 2=Uno, 3=Dos, 4=Tres o más, NA=Missing
+#1=Ninguno, 2=Uno, 3=Dos, 4=Tres o mÃ¡s, NA=Missing
 table(paper_corto$banos,useNA = "ifany")
 
 #Genero
 #1=Mujer, 2=Hombre, NA=Missing
 table(paper_corto$genero,useNA = "ifany")
 
-#Condición migratoria (estudiante)
-#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+#CondiciÃ³n migratoria (estudiante)
+#1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra,useNA = "ifany")
 
-#Condición migratoria (Mamá)
-#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+#CondiciÃ³n migratoria (MamÃ¡)
+#1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra_mama,useNA = "ifany")
 
-#Condición migratoria (Papá)
-#1=País del test, 2=Otro país, 3=No lo sabe, NA=Missing
+#CondiciÃ³n migratoria (PapÃ¡)
+#1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra_papa,useNA = "ifany")
 
-#Matemática es fácil para mi
+#MatemÃ¡tica es fÃ¡cil para mi
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
 table(paper_corto$matematica_facil,useNA = "ifany")
 
-#Matemática es uno de mis cursos favoritos
+#MatemÃ¡tica es uno de mis cursos favoritos
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
 table(paper_corto$matematica_favorita,useNA = "ifany")
 
-#Gráficos
+#GrÃ¡ficos
 
 #Patrimonio medio por estudiante y principales paices de estudio
 survey_design_sin_na <- subset(
@@ -606,8 +609,8 @@ grafico_data <- rbind(por_pais, OCDE) %>%
   filter(pais %in% paises_graficos) %>%
   mutate(grupo = case_when(
     pais == "OCDE" ~ "OCDE",
-    pais %in% LATAM ~ "América Latina",
-    TRUE ~ "Otros países"
+    pais %in% LATAM ~ "America Latina",
+    TRUE ~ "Otros paises"
   ))
 
 
@@ -617,26 +620,26 @@ ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)
   geom_col() +
   scale_fill_manual(
     values = c("OCDE" = "red", 
-               "América Latina" = "green3", 
-               "Otros países" = "steelblue"),
+               "America Latina" = "green3", 
+               "Otros paises" = "steelblue"),
     name = "Región") +
-  labs(x = "Paises", y = "Patrimonio medio",title = "Patrimonio medio por estudiante y principales paises de estudio" ) +
+  labs(x = "Paises", y = "Patrimonio medio",title = "Patrimonio medio por estudiante" ) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
-    panel.grid.major = element_blank(),  # Elimina líneas de cuadrícula principales
-    panel.grid.minor = element_blank(),  # Elimina líneas de cuadrícula secundarias
+    panel.grid.major = element_blank(),  # Elimina lÃ­neas de cuadrÃ­cula principales
+    panel.grid.minor = element_blank(),  # Elimina lÃ­neas de cuadrÃ­cula secundarias
     panel.background = element_blank(),  # Fondo completamente blanco
-    plot.background = element_blank(),    # Fondo del área del gráfico blanco
+    plot.background = element_blank(),    # Fondo del Ã¡rea del grÃ¡fico blanco
     plot.title = element_text(  # Especificaciones para centrar
       hjust = 0.5,              # Centrado horizontal (0.5 = centro)
-      size = 14,                # Tamaño de fuente
+      size = 14,                # TamaÃ±o de fuente
       face = "bold",            # Negrita
       margin = margin(b = 10)   # Margen inferior
     )
   )
 
-#Cantidad de estudiantes por país y género
+#Cantidad de estudiantes por paÃ­s y gÃ©nero
 paper_corto %>%
   select(pais, genero) %>%
   group_by(pais, genero) %>%
@@ -645,13 +648,13 @@ paper_corto %>%
   arrange(desc(genero_1 + genero_2)) %>%
   print()
 
-#Nivel de riqueza por país
+#Nivel de riqueza por paÃ­s
 ggplot(paper_corto, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
   stat_summary(fun = mean, geom = "bar", fill = "skyblue") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = -0.5, size = 3) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  ggtitle("Ranking de países por nivel de riqueza (ascendente)") +
-  xlab("País") +
+  ggtitle("Ranking de paÃ­ses por nivel de riqueza (ascendente)") +
+  xlab("PaÃ­s") +
   ylab("Media de la Riqueza")
 
 ggplot(paper_corto, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(genero))) +
@@ -661,20 +664,20 @@ ggplot(paper_corto, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.facto
                position = position_dodge(width = 0.9),
                vjust = -0.5, size = 3) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  ggtitle("Media de Riqueza por País y Género") +
+  ggtitle("Media de Riqueza por País y Genero") +
   xlab("País") +
   ylab("Media de la Riqueza") +
   scale_fill_manual(values = c("steelblue", "salmon"),
                     labels = c("Hombre", "Mujer"),
-                    name = "Género")
+                    name = "Genero")
 
-#Densidad por género
+#Densidad por gÃ©nero
 ggplot(paper_corto, aes(x = MATH_SCORE, fill = as.factor(genero), group = genero)) +
   geom_density(alpha = 0.6) +
   scale_fill_manual(values = c("steelblue", "salmon"),
                     labels = c("Hombre", "Mujer"),
-                    name = "Género") +
-  ggtitle("Distribución del Puntaje en Matemáticas por Género") +
+                    name = "Genero") +
+  ggtitle("Distribución del Puntaje en Matemáticas por Genero") +
   xlab("Puntaje en Matemáticas") +
   ylab("Densidad") +
   facet_wrap(. ~ pais)
@@ -695,7 +698,7 @@ svycor <- function(design, variables, method = "spearman") {
   # Extraer datos y verificar
   data <- design$variables[, variables, drop = FALSE]
   
-  # Convertir a numérico
+  # Convertir a numÃ©rico
   data <- data %>% mutate(across(everything(), as.numeric))
   
   # Manejar casos con NA
@@ -703,9 +706,9 @@ svycor <- function(design, variables, method = "spearman") {
   data <- data[complete_cases, ]
   weights <- weights(design)[complete_cases]
   
-  if(nrow(data) == 0) stop("No hay datos completos después de eliminar NA")
+  if(nrow(data) == 0) stop("No hay datos completos despuÃ©s de eliminar NA")
   
-  # Cálculo de correlación
+  # CÃ¡lculo de correlaciÃ³n
   if(method == "spearman") {
     data <- apply(data, 2, rank)
   }
@@ -719,7 +722,7 @@ svycor <- function(design, variables, method = "spearman") {
 # 3. Calcular correlaciones ponderadas
 cor_ponderada <- svycor(survey_design_sin_na, vars, method = "spearman")
 
-# 4. Visualización
+# 4. VisualizaciÃ³n
 tabla_correlaciones <- as.data.frame(cor_ponderada)
 tabla_correlaciones
 
@@ -727,7 +730,7 @@ library(reshape2)
 library(ggplot2)
 cor_long <- melt(cor_ponderada)
 
-# Crear el gráfico de calor
+# Crear el grÃ¡fico de calor
 ggplot(cor_long, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
@@ -738,10 +741,11 @@ ggplot(cor_long, aes(x = Var1, y = Var2, fill = value)) +
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
     axis.title = element_blank()
   ) +
-  coord_fixed()
+  coord_fixed() +
+  labs(title = "Matriz de correlación")
 
 #Regresion logistica ----
-#Regresión muestral
+#RegresiÃ³n muestral
 
 logit <- glm(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
                falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
@@ -772,11 +776,11 @@ library(pscl)
 
 pR2(logit)[["McFadden"]]
 
-#Criterios de información
+#Criterios de informaciÃ³n
 AIC(logit)
 BIC(logit)
 
-#Proyección de probabilidades
+#ProyecciÃ³n de probabilidades
 prlogit=predict(logit,type="response")
 summary(logit)
 
@@ -784,18 +788,18 @@ summary(logit)
 probabilidades<-cbind (logit)
 probabilidades
 
-#========ESTIMACIÓN POBLACIONAL
-#Diseñamos el factor poblacional--------------------------------------------
+#========ESTIMACIÃN POBLACIONAL
+#DiseÃ±amos el factor poblacional--------------------------------------------
 
-facpob <- paper_corto$W_FSTUWT # factor de expansión
+facpob <- paper_corto$W_FSTUWT # factor de expansiÃ³n
 
-##3. Declaración del diseño muestral--------------------------------------------
+##3. DeclaraciÃ³n del diseÃ±o muestral--------------------------------------------
 #install.packages("survey")
 library(survey)
 
 diseno <- svydesign(id=~id_estudiante, weight=~W_FSTUWT, data=paper_corto, nest=TRUE)
 
-#Estimación logit con factor --------------------------------------------------
+#EstimaciÃ³n logit con factor --------------------------------------------------
 
 logit_pob <- 
   svyglm(stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
@@ -812,7 +816,7 @@ stargazer(logit_pob, type="text")
 
 #EFECTOS MARGINALES-------------------------------------------------
 #Efecto marginal con factor-----------------------------------------------------
-#install.packages("margins")
+install.packages("margins")
 library(margins)
 
 margins(logit_pob,design = diseno)
@@ -823,9 +827,9 @@ summary(margins(logit_pob,design = diseno))
 #install.packages("jtools")
 library(jtools)
 
-summ(logit_pob)
+summary(logit_pob)
 
-#PROYECCIÓN DE PROBABILIDADES-------------------------------------------
+#PROYECCIÃN DE PROBABILIDADES-------------------------------------------
 prlogitpob=predict(logit_pob,type="response")
 prlogitpob
 
