@@ -1,6 +1,7 @@
 ############################# Codigo ###########################################
 
-#rm(list = ls())
+rm(list = ls())
+
 # Librerias ----
 
 library(haven)
@@ -8,8 +9,8 @@ library(dplyr)
 
 # Bases de datos separadas ----
 #setwd("C:/Users/externo.babarca/Desktop/PISA/")
-#setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
-setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/bases de datos/")
+setwd("C:/Users/USER/Desktop/brandon/PAPERS/RESEARCH ECONOMIC/BASES/")
+#setwd("C:/Users/FabiyJose/OneDrive/Desktop/proyecto voluntariado/bases de datos/")
 
 
 CY08MSP_STU_QQQ <- read_sas("CY08MSP_STU_QQQ.SAS7BDAT", NULL)
@@ -23,6 +24,7 @@ CY08MSP_TCH_QQQ <- read_sas("CY08MSP_TCH_QQQ.SAS7BDAT", NULL)
 
 paises <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", "PRY", "SLV", "URY")
 #paises1 <- c("BRA", "COL", "CRI", "PAN", "PER")
+
 
 students <- CY08MSP_STU_QQQ %>%
   select(CNT, CNTRYID, CNTSCHID, CNTSTUID, ST250Q01JA,ST250Q03JA,ST251Q06JA,
@@ -53,13 +55,13 @@ students <- CY08MSP_STU_QQQ %>%
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
          PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO,
          HOMEPOS, ST019AQ01T, ST019BQ01T, ST019CQ01T)
-  #filter(CNT %in% paises)
+#filter(CNT %in% paises)
 
 
 school <- CY08MSP_SCH_QQQ %>%
   select(CNT, CNTSCHID, SC013Q01TA, SC016Q01TA, SC004Q02TA, SC004Q03TA, SC004Q07NA, SC211Q03JA,STRATIO, 
          SMRATIO, MCLSIZE, MTTRAIN, TEAFDBK, MACTIV, MATHEXC, ABGMATH)
-  #filter(CNT %in% paises)
+#filter(CNT %in% paises)
 
 teacher <- CY08MSP_TCH_QQQ %>%
   select(CNT, CNTSCHID, TC230Q01JA, TC230Q02JA, TC230Q03JA, TC230Q07JA,
@@ -75,7 +77,7 @@ teacher <- CY08MSP_TCH_QQQ %>%
          TC185Q01HA, TC185Q02HA, TC185Q03HA, TC185Q04HA, TC185Q05HA, 
          TC185Q06HA, TC185Q08HA, TC185Q09HA, TC185Q10HA, TC185Q14HA,
          TC185Q15HA, TC185Q16HA, TC185Q18HA)
-  #filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
+#filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
 
 # Juntar las tablas por ID de escuela y ID de pais (Revisar STATA) ----
 write_dta(students, path = "students.dta")
@@ -535,8 +537,10 @@ table(paper_corto$educacion_padre,useNA = "ifany")
 #Graficos y estadisticas descriptivas ----
 #EstadÃ­sticas descriptivas
 
-#Tipo de escuela (1=pÃºblica, 2=privada)
+#Tipo de escuela (1=privada, 0=publica)
 table(paper_corto$tipo_escuela,useNA = "ifany")
+paper_corto$tipo_escuela <- ifelse(paper_corto$tipo_escuela %in% c(2), 1, 0)
+
 
 #Falta comida en el hogar
 #1=nunca o casi nunca, 2=Alrededor de una vez a la semana, 3=2 a 3 veces por semana
@@ -544,40 +548,50 @@ table(paper_corto$tipo_escuela,useNA = "ifany")
 table(paper_corto$falta_comida_dinero,useNA = "ifany")
 
 #HabitaciÃ³n propia
-#1=Si, 2=No, NA=Missing
+#1=Si, 0=No, NA=Missing
 table(paper_corto$habitacion_propia,useNA = "ifany")
+paper_corto$habitacion_propia <- ifelse(paper_corto$habitacion_propia %in% c(1), 1, 0)
 
 #Internet en el hogar
-#1=Si, 2=No, NA=Missing
+#1=Si, 0=No, NA=Missing
 table(paper_corto$internet_hogar,useNA = "ifany")
+paper_corto$internet_hogar <- ifelse(paper_corto$internet_hogar %in% c(1), 1, 0)
 
 #Banos
 #1=Ninguno, 2=Uno, 3=Dos, 4=Tres o mÃ¡s, NA=Missing
 table(paper_corto$banos,useNA = "ifany")
 
 #Genero
-#1=Mujer, 2=Hombre, NA=Missing
+#0=Mujer, 1=Hombre, NA=Missing
 table(paper_corto$genero,useNA = "ifany")
+paper_corto$genero <- ifelse(paper_corto$genero %in% c(2), 1, 0)
 
 #CondiciÃ³n migratoria (estudiante)
-#1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
+#1=PaÃ­s del test, 0=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra,useNA = "ifany")
+paper_corto$cond_migra <- ifelse(paper_corto$cond_migra %in% c(1), 1, 0)
 
 #CondiciÃ³n migratoria (MamÃ¡)
-#1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
+#1=PaÃ­s del test, 0=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra_mama,useNA = "ifany")
+paper_corto$cond_migra_mama <- ifelse(paper_corto$cond_migra_mama %in% c(1), 1, 0)
 
 #CondiciÃ³n migratoria (PapÃ¡)
 #1=PaÃ­s del test, 2=Otro paÃ­s, 3=No lo sabe, NA=Missing
 table(paper_corto$cond_migra_papa,useNA = "ifany")
+paper_corto$cond_migra_papa <- ifelse(paper_corto$cond_migra_papa %in% c(1), 1, 0)
 
 #MatemÃ¡tica es fÃ¡cil para mi
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
+#1=De acuerdo, 0=En desacuerdo
 table(paper_corto$matematica_facil,useNA = "ifany")
+paper_corto$matematica_facil <- ifelse(paper_corto$matematica_facil %in% c(4,3), 1, 0)
 
 #MatemÃ¡tica es uno de mis cursos favoritos
 #1=Totalmente en desacuerdo, 2=En desacuerdo, 3=De acuerdo, 4=Totalmente de acuerdo, NA=Missing
+#1=De acuerdo, 0=En desacuerdo
 table(paper_corto$matematica_favorita,useNA = "ifany")
+paper_corto$matematica_favorita <- ifelse(paper_corto$matematica_favorita %in% c(4,3), 1, 0)
 
 #GrÃ¡ficos
 
@@ -645,7 +659,7 @@ paper_corto %>%
   group_by(pais, genero) %>%
   summarise(cuenta = n(), .groups = "drop") %>%
   pivot_wider(names_from = genero, values_from = cuenta, names_prefix = "genero_") %>%
-  arrange(desc(genero_1 + genero_2)) %>%
+  arrange(desc(genero_0 + genero_1)) %>%
   print()
 
 #Nivel de riqueza por paÃ­s
@@ -837,6 +851,60 @@ head(prlogitpob)
 
 summary(prlogitpob)
 
-#LROC
+#METRICAS DEL MODELO ----
+#Resumen del modelo
+resumen <- summary(logit_pob);resumen
+
+#Odds ratio
+odds_ratio1 <- exp(modelo$coefficients);inicio <- Sys.time()
+intervalos_confianza1 <- exp(confint(resumen));fin <- Sys.time();fin - inicio
+
+resultados1 <- data.frame("Odds Ratio" = odds_ratio1, "IC 2.5%" = intervalos_confianza1[, 1], "IC 97.5%" = intervalos_confianza1[, 2])
+print(resultados1)
+
+#Evaluación de capacidad predictiva
+fitted.results2 <- predict(logit_pob, newdata = paper_corto, type = 'response')
+fitted.results2 <- ifelse(fitted.results2 >= 0.5, 1, 0)
+
+misClasificError2 <- mean(fitted.results2 != paper_corto$stem)
+print(paste('Accuracy', round(1 - misClasificError2, digits = 3)))
+
+#Matriz de confusion
+install.packages("caret")
+install.packages("vcd")
+library(caret)
+library(ggplot2)
+library(vcd)
+
+fitted.results2 <- as.factor(fitted.results2)
+paper_corto$stem <- as.factor(paper_corto$stem)
+
+confusionMatrix(data = fitted.results2, reference = paper_corto$stem, positive = "1")
+
+matriz_confusion1 <- table(paper_corto$stem, fitted.results2, dnn = c("Real", "Predicción"))
+rownames(matriz_confusion1) <- c("NO STEM", "STEM")
+colnames(matriz_confusion1) <- c("NO STEM", "STEM")
+
+mosaic(matriz_confusion1, shade = TRUE, colorize = TRUE, gp = gpar(fill = matrix(c("skyblue", "darkblue", "darkblue", "skyblue"), 2, 2)),pop=TRUE)
+
+matriz_ajustada <- log1p(matriz_confusion1)  # Aplicar logaritmo para reducir diferencias
+mosaic(matriz_ajustada, 
+       shade = TRUE, 
+       colorize = TRUE, 
+       gp = gpar(fill = matrix(c("skyblue", "darkblue", "darkblue", "skyblue"), 2, 2)))
+
+#Curva ROC
+#install.packages("ROCR")
+library(ROCR)
+p1 <- predict(logit_pob, newdata = paper_corto, type = "response")
+p1 <- as.numeric(p1)
+pr1 <- prediction(p1, paper_corto$stem)
+prf1 <- performance(pr1, measure = "tpr", x.measure = "fpr")
+plot(prf1)
+
+#AUC
+auc1 <- performance(pr1, measure = "auc")
+auc1 <- auc1@y.values[[1]]
+print(auc1)
 
 
