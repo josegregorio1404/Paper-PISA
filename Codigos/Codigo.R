@@ -3,7 +3,7 @@
 rm(list = ls())
 
 # Librerias ----
-
+#install.packages("dplyr")
 library(haven)
 library(dplyr)
 
@@ -21,7 +21,7 @@ CY08MSP_TCH_QQQ <- read_sas("CY08MSP_TCH_QQQ.SAS7BDAT", NULL)
 
 
 # Filtra durante la lectura (menos eficiente que Python para archivos muy grandes) ----
-
+library(dplyr)
 paises <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", "PRY", "SLV", "URY")
 #paises1 <- c("BRA", "COL", "CRI", "PAN", "PER")
 
@@ -54,7 +54,7 @@ students <- CY08MSP_STU_QQQ %>%
          PA197Q02WA, EXPECEDU, PA197Q02WA, PA197Q03WA, PA197Q04WA, PA197Q05WA,
          PV1MATH, PV2MATH, PV3MATH, PV4MATH, PV5MATH, PV6MATH, PV7MATH, PV8MATH,
          PV9MATH, PV10MATH, MATHEFF, MATHPERS, OCOD3, OCOD2, OCOD1, W_FSTUWT,SISCO,
-         HOMEPOS, ST019AQ01T, ST019BQ01T, ST019CQ01T)
+         ESCS, ST019AQ01T, ST019BQ01T, ST019CQ01T)
 #filter(CNT %in% paises)
 
 
@@ -80,6 +80,8 @@ teacher <- CY08MSP_TCH_QQQ %>%
 #filter(CNT %in% paises) #Hablar que en la base de datos teacher solo hay de LATAM los paises de "paises1"
 
 # Juntar las tablas por ID de escuela y ID de pais (Revisar STATA) ----
+library(haven)
+
 write_dta(students, path = "students.dta")
 
 write_dta(school, path = "school.dta")
@@ -440,7 +442,6 @@ sum(pisa_2022$stem_madre, na.rm = TRUE)
 
 
 # Recodificar las variables que sean necesarias recodificar
-
 cuartiles <- pisa_2022 %>%
   filter(pais %in% paises) %>%
   pull(pct_desfavorecidos) %>%  # Extrae la columna numérica
@@ -461,27 +462,6 @@ pisa_2022 %>%
   mutate(ms = sum(is.na(stem)),
          ans =  n(),
          porc_ans= (1-(ms/ans))*100)
-
-# Puntaje de MatemÃ¡tica
-library(dplyr)
-library(survey)
-
-pisa_2022 <- pisa_2022 %>%
-  mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
-
-# DiseÃ±o muestral general
-survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
-
-# Calcular promedio de MATH_SCORE por paÃ­s
-math_score <- data.frame(
-  pais = paises,
-  promedio_mate = sapply(paises, function(pais_i) {
-    # Filtrar el diseÃ±o muestral por paÃ­s
-    svymean(~MATH_SCORE, subset(survey_design, pisa_2022$pais == pais_i))[[1]]
-  })
-)
-
-print(math_score)
 
 #Idea clara del trabajo futuro
 library(tidyr)
@@ -505,10 +485,31 @@ print(prueba)
 
 table(pisa_2022$stem,useNA = "ifany")
 
+# Puntaje de MatemÃ¡tica
+library(dplyr)
+library(survey)
+
+pisa_2022 <- pisa_2022 %>%
+  mutate(MATH_SCORE = rowMeans(across(matches("^PV.*MATH$")), na.rm = TRUE))
+
+# DiseÃ±o muestral general
+survey_design <- svydesign(ids = ~1, data = pisa_2022, weights = ~W_FSTUWT)
+
+# Calcular promedio de MATH_SCORE por paÃ­s
+math_score <- data.frame(
+  pais = paises,
+  promedio_mate = sapply(paises, function(pais_i) {
+    # Filtrar el diseÃ±o muestral por paÃ­s
+    svymean(~MATH_SCORE, subset(survey_design, pisa_2022$pais == pais_i))[[1]]
+  })
+)
+
+print(math_score)
+
 # Variables ----
 #AspiraciÃ³n a una carrera stem: stem
 #Nivel educativo de los padres: educacion_madre, educacion_padre
-#Ãndice socio-econÃ³mico: HOMEPOS
+#Ãndice socio-econÃ³mico: ESCS
 #Financiamiento de la escuela: tipo_escuela
 #Acceso a recursos en el hogar:falta_comida_dinero, habitacion_propia, internet_hogar, banos, 
 #GÃ©nero: genero
@@ -522,7 +523,7 @@ paper_corto <- pisa_2022 %>%
 table(paper_corto$pais,useNA = "ifany")
 table(paper_corto$SISCO,useNA = "ifany")
 table(paper_corto$stem,useNA = "ifany")
-table(paper_corto$HOMEPOS,useNA = "ifany")
+table(paper_corto$ESCS,useNA = "ifany")
 
 #EducaciÃ³n:
 #1= <ISCED level 3A> = educaciÃ³n secundaria (bachillerato o preparatoria)
@@ -534,6 +535,18 @@ table(paper_corto$HOMEPOS,useNA = "ifany")
 table(paper_corto$educacion_madre,useNA = "ifany")
 table(paper_corto$educacion_padre,useNA = "ifany")
 
+paper_corto$padre_tecnica <- ifelse(paper_corto$educacion_padre %in% c(2), 1, 0)
+paper_corto$padre_secundaria <- ifelse(paper_corto$educacion_padre %in% c(1), 1, 0)
+paper_corto$padre_basica <- ifelse(paper_corto$educacion_padre %in% c(3), 1, 0)
+paper_corto$padre_primaria <- ifelse(paper_corto$educacion_padre %in% c(4), 1, 0)
+paper_corto$padre_incompelta <- ifelse(paper_corto$educacion_padre %in% c(5), 1, 0)
+
+paper_corto$madre_tecnica <- ifelse(paper_corto$educacion_madre %in% c(2), 1, 0)
+paper_corto$madre_secundaria <- ifelse(paper_corto$educacion_madre %in% c(1), 1, 0)
+paper_corto$madre_basica <- ifelse(paper_corto$educacion_madre %in% c(3), 1, 0)
+paper_corto$madre_primaria <- ifelse(paper_corto$educacion_madre %in% c(4), 1, 0)
+paper_corto$madre_incompelta <- ifelse(paper_corto$educacion_madre %in% c(5), 1, 0)
+
 #Graficos y estadisticas descriptivas ----
 #EstadÃ­sticas descriptivas
 
@@ -541,11 +554,11 @@ table(paper_corto$educacion_padre,useNA = "ifany")
 table(paper_corto$tipo_escuela,useNA = "ifany")
 paper_corto$tipo_escuela <- ifelse(paper_corto$tipo_escuela %in% c(2), 1, 0)
 
-
 #Falta comida en el hogar
 #1=nunca o casi nunca, 2=Alrededor de una vez a la semana, 3=2 a 3 veces por semana
 #4=4 a 5 veces por semana, 5=todos o casi todos los dÃ­as, NA=Missing
 table(paper_corto$falta_comida_dinero,useNA = "ifany")
+paper_corto$falta_comida_dinero <- ifelse(paper_corto$falta_comida_dinero %in% c(2,3,4,5), 1, 0)
 
 #HabitaciÃ³n propia
 #1=Si, 0=No, NA=Missing
@@ -558,8 +571,12 @@ table(paper_corto$internet_hogar,useNA = "ifany")
 paper_corto$internet_hogar <- ifelse(paper_corto$internet_hogar %in% c(1), 1, 0)
 
 #Banos
-#1=Ninguno, 2=Uno, 3=Dos, 4=Tres o mÃ¡s, NA=Missing
+#0=Ninguno, 1=Uno, 2=Dos, 3=Tres o mÃ¡s, NA=Missing
 table(paper_corto$banos,useNA = "ifany")
+paper_corto$banos <- ifelse(paper_corto$banos %in% c(1), 0, paper_corto$banos)
+paper_corto$banos <- ifelse(paper_corto$banos %in% c(2), 1, paper_corto$banos)
+paper_corto$banos <- ifelse(paper_corto$banos %in% c(3), 2, paper_corto$banos)
+paper_corto$banos <- ifelse(paper_corto$banos %in% c(4), 3, paper_corto$banos)
 
 #Genero
 #0=Mujer, 1=Hombre, NA=Missing
@@ -593,23 +610,28 @@ paper_corto$matematica_facil <- ifelse(paper_corto$matematica_facil %in% c(4,3),
 table(paper_corto$matematica_favorita,useNA = "ifany")
 paper_corto$matematica_favorita <- ifelse(paper_corto$matematica_favorita %in% c(4,3), 1, 0)
 
+#Software Educativo
+#1=Si , 0=No
+table(paper_corto$software_educativo,useNA = "ifany")
+paper_corto$software_educativo <- ifelse(paper_corto$software_educativo %in% c(1),1,0)
+
 #GrÃ¡ficos
 
 #Patrimonio medio por estudiante y principales paices de estudio
 survey_design_sin_na <- subset(
   survey_design, 
-  !is.na(HOMEPOS) & !is.na(W_FSTUWT)
+  !is.na(ESCS) & !is.na(W_FSTUWT)
 )
 
-por_pais <- svyby(~HOMEPOS, ~pais, survey_design_sin_na, svymean) %>% 
+por_pais <- svyby(~ESCS, ~pais, survey_design_sin_na, svymean) %>% 
   as.data.frame()
 
 
-OCDE <- svymean(~HOMEPOS, design = survey_design_sin_na) %>%
+OCDE <- svymean(~ESCS, design = survey_design_sin_na) %>%
   as.data.frame() %>%
   tibble::rownames_to_column("variable") %>%                                 # Convertir el nombre de fila en columna
-  mutate(variable = "OCDE") %>%                                              # Cambiar "HOMEPOS" por "OCDE"
-  rename(pais = variable, HOMEPOS = mean, se = HOMEPOS)                      # Renombrar la columna mean
+  mutate(variable = "OCDE") %>%                                              # Cambiar "ESCS" por "OCDE"
+  rename(pais = variable, ESCS = mean, se = ESCS)                      # Renombrar la columna mean
 
 
 paises_graficos <- c("ARG", "BRA", "CHL", "COL", "CRI", "GTM", "MEX", "PAN", "PER", 
@@ -623,21 +645,21 @@ grafico_data <- rbind(por_pais, OCDE) %>%
   filter(pais %in% paises_graficos) %>%
   mutate(grupo = case_when(
     pais == "OCDE" ~ "OCDE",
-    pais %in% LATAM ~ "America Latina",
-    TRUE ~ "Otros paises"
+    pais %in% LATAM ~ "Latin America",
+    TRUE ~ "Other countries"
   ))
 
 
 library(ggplot2)
 
-ggplot(grafico_data, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS, fill = grupo)) +
+ggplot(grafico_data, aes(x = reorder(pais, -ESCS), y = ESCS, fill = grupo)) +
   geom_col() +
   scale_fill_manual(
     values = c("OCDE" = "red", 
-               "America Latina" = "green3", 
-               "Otros paises" = "steelblue"),
-    name = "Región") +
-  labs(x = "Paises", y = "Patrimonio medio",title = "Patrimonio medio por estudiante" ) +
+               "Latin America" = "green3", 
+               "Other countries" = "steelblue"),
+    name = "Region") +
+  labs(x = "Countries", y = "Average wealth",title = "Average student wealth by country" ) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
@@ -663,7 +685,7 @@ paper_corto %>%
   print()
 
 #Nivel de riqueza por paÃ­s
-ggplot(paper_corto, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
+ggplot(paper_corto, aes(x = reorder(pais, -ESCS), y = ESCS)) +
   stat_summary(fun = mean, geom = "bar", fill = "skyblue") +
   stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = -0.5, size = 3) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
@@ -671,42 +693,44 @@ ggplot(paper_corto, aes(x = reorder(pais, -HOMEPOS), y = HOMEPOS)) +
   xlab("PaÃ­s") +
   ylab("Media de la Riqueza")
 
-ggplot(paper_corto, aes(x = reorder(pais, HOMEPOS), y = HOMEPOS, fill = as.factor(genero))) +
+ggplot(paper_corto, aes(x = reorder(pais, ESCS), y = ESCS, fill = as.factor(genero))) +
   stat_summary(fun = mean, geom = "bar", position = position_dodge(width = 0.9)) +
   stat_summary(fun = mean, geom = "text",
                aes(label = round(..y.., 1)),
                position = position_dodge(width = 0.9),
                vjust = -0.5, size = 3) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  ggtitle("Media de Riqueza por País y Genero") +
-  xlab("País") +
-  ylab("Media de la Riqueza") +
+  ggtitle("Average student wealth by country and gender") +
+  xlab("Country") +
+  ylab("Average wealth") +
   scale_fill_manual(values = c("steelblue", "salmon"),
-                    labels = c("Hombre", "Mujer"),
-                    name = "Genero")
+                    labels = c("Male", "Female"),
+                    name = "Gender")
 
 #Densidad por gÃ©nero
 ggplot(paper_corto, aes(x = MATH_SCORE, fill = as.factor(genero), group = genero)) +
   geom_density(alpha = 0.6) +
   scale_fill_manual(values = c("steelblue", "salmon"),
-                    labels = c("Hombre", "Mujer"),
+                    labels = c("Male", "Female"),
                     name = "Genero") +
-  ggtitle("Distribución del Puntaje en Matemáticas por Genero") +
-  xlab("Puntaje en Matemáticas") +
-  ylab("Densidad") +
+  ggtitle("Math score distribution by gender") +
+  xlab("Math Score") +
+  ylab("Density") +
   facet_wrap(. ~ pais)
 
 # correlaciones ----
 
 library(psych)
-
-vars <- c("educacion_madre", "educacion_padre","stem","HOMEPOS","genero","falta_comida_dinero", 
-          "habitacion_propia","internet_hogar","banos","matematica_facil","matematica_favorita",
-          "estatus_economico_actual","estatus_economico_futuro","vehiculos","software_educativo")
+vars <- c("stem","madre_incompelta","padre_incompelta","ESCS","genero",
+          "falta_comida_dinero", "habitacion_propia","internet_hogar","banos","matematica_facil",
+          "matematica_favorita","estatus_economico_actual","estatus_economico_futuro",
+          "vehiculos","software_educativo")
 
 paper_corto <- paper_corto %>%
   select(all_of(vars), W_FSTUWT, id_estudiante) %>%
   na.omit()
+
+survey_design_corr <- svydesign(ids = ~1, data = paper_corto, weights = ~W_FSTUWT)
 
 svycor <- function(design, variables, method = "spearman") {
   # Extraer datos y verificar
@@ -734,7 +758,7 @@ svycor <- function(design, variables, method = "spearman") {
 }
 
 # 3. Calcular correlaciones ponderadas
-cor_ponderada <- svycor(survey_design_sin_na, vars, method = "spearman")
+cor_ponderada <- svycor(survey_design_corr, vars, method = "spearman")
 
 # 4. VisualizaciÃ³n
 tabla_correlaciones <- as.data.frame(cor_ponderada)
@@ -749,22 +773,62 @@ ggplot(cor_long, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
                        midpoint = 0, limit = c(-1, 1), space = "Lab",
-                       name = "Correlación\nSpearman") +
+                       name = "Spearman Correlation") +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
     axis.title = element_blank()
   ) +
   coord_fixed() +
-  labs(title = "Matriz de correlación")
+  labs(title = "Correlation Matrix")
+
+#Exporto base de datos para regresión en Stata
+write_dta(paper_corto, "paper_corto.dta")
+
+## REGRESIÓN EN STATA ----
+#//RESULTADOS DEL MODELO
+#clear all
+#cd "C:\Users\USER\Desktop\brandon\PAPERS\RESEARCH ECONOMIC\BASES"
+#use paper_corto.dta
+
+#***Estimamos el modelo considerando factor de ajuste
+#gen peso=W_FSTUWT
+
+#logit stem madre_incompelta padre_incompelta ESCS genero falta_comida_dinero habitacion_propia internet_hogar banos matematica_facil matematica_favorita estatus_economico_actual estatus_economico_futuro vehiculos software_educativo [pw=peso]
+#**En los resultados encontramos coherencia en los signos de los coeficientes, 
+#**excepto para acceso al servicio de agua y electricidad.  
+
+#**Bondad de ajuste por pseudo R2
+#fitstat
+
+#**Evaluacion de la bondad de ajuste por clasificacion
+#logit stem madre_incompelta padre_incompelta ESCS genero falta_comida_dinero habitacion_propia internet_hogar banos matematica_facil matematica_favorita estatus_economico_actual estatus_economico_futuro vehiculos software_educativo [iw=peso]
+#*estat gof, group(10) table	/*Estadístico de Hosmer y Lemeshow*/
+#lsens stem, genprob(cutoff_p) gensens(sensitivity) genspec(specificity)
+#lroc
+
+#**Eleccion del punto de corte optimo
+#gen float youden_index = sensitivity + specificity - 1
+#egen float max = max(youden_index)	/*El punto de corte optimo sera 23.58%*/
+#list cutoff_p sensitivity specificity youden_index if youden_index== max
+#drop cutoff_p sensitivity specificity youden_index max
+
+#**Análisis de odd ratio
+#logit stem madre_incompelta padre_incompelta ESCS genero falta_comida_dinero habitacion_propia internet_hogar banos matematica_facil matematica_favorita estatus_economico_actual estatus_economico_futuro vehiculos software_educativo [pw=peso]
+#listcoef, help
+
+#**Efectos marginales
+#prchange
+
 
 #Regresion logistica ----
 #RegresiÃ³n muestral
+library(mfx)
 
-logit <- glm(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
-               falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
-               matematica_facil + matematica_favorita + estatus_economico_actual + 
-               estatus_economico_futuro + vehiculos + software_educativo, family = "binomial", data = paper_corto)
+logit <- glm(formula = stem ~ madre_incompelta+padre_incompelta+ESCS+genero+falta_comida_dinero+
+             habitacion_propia+internet_hogar+banos+matematica_facil+matematica_favorita+
+             estatus_economico_actual+estatus_economico_futuro+vehiculos+software_educativo, 
+             family = "binomial", data = paper_corto)
 summary(logit)
 
 #install.packages("stargazer")
@@ -772,12 +836,11 @@ library(stargazer)
 stargazer(logit, type="text")
 
 #Efectos muestrales
-#install.packages("mfx")
 library(mfx)
-logitmfx <- logitmfx(formula = stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
-                       falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
-                       matematica_facil + matematica_favorita + estatus_economico_actual + 
-                       estatus_economico_futuro + vehiculos + software_educativo, data = paper_corto)
+logitmfx <- logitmfx(formula = stem ~ madre_incompelta+padre_incompelta+ESCS+genero+falta_comida_dinero+
+                     habitacion_propia+internet_hogar+banos+matematica_facil+matematica_favorita+
+                     estatus_economico_actual+estatus_economico_futuro+vehiculos+software_educativo, 
+                     data = paper_corto)
 logitmfx
 
 #Odds ratio
@@ -816,10 +879,9 @@ diseno <- svydesign(id=~id_estudiante, weight=~W_FSTUWT, data=paper_corto, nest=
 #EstimaciÃ³n logit con factor --------------------------------------------------
 
 logit_pob <- 
-  svyglm(stem ~ educacion_madre + educacion_padre + HOMEPOS + genero + 
-           falta_comida_dinero + habitacion_propia + internet_hogar + banos + 
-           matematica_facil + matematica_favorita + estatus_economico_actual + 
-           estatus_economico_futuro + vehiculos + software_educativo, 
+  svyglm(stem ~ madre_incompelta+padre_incompelta+ESCS+genero+falta_comida_dinero+
+           habitacion_propia+internet_hogar+banos+matematica_facil+matematica_favorita+
+           estatus_economico_actual+estatus_economico_futuro+vehiculos+software_educativo, 
          family = binomial(link = "logit"),
          design = diseno, data = paper_corto)
 summary(logit_pob)
@@ -906,5 +968,3 @@ plot(prf1)
 auc1 <- performance(pr1, measure = "auc")
 auc1 <- auc1@y.values[[1]]
 print(auc1)
-
-
